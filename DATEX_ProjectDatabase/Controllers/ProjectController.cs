@@ -17,6 +17,8 @@ namespace DATEX_ProjectDatabase.Controllers
             _externalApiService = externalApiService;
         }
 
+        /*For api code*/
+
         [HttpGet("sync-external")]
         public async Task<IActionResult> SyncWithExternalApi()
         {

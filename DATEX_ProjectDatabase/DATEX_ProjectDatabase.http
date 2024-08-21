@@ -1,0 +1,6 @@
+@DATEX_ProjectDatabase_HostAddress = http://localhost:5162
+
+GET {{DATEX_ProjectDatabase_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

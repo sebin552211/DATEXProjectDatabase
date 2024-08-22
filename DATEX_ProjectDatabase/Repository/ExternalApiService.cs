@@ -13,6 +13,7 @@ namespace DATEX_ProjectDatabase.Repository
             _httpClient = httpClient;
         }
 
+        /*External Api link*/
         public async Task<List<ProjectDto>> GetProjectsFromExternalApiAsync()
         {
             var response = await _httpClient.GetAsync("http://localhost:3000/projects");

@@ -17,6 +17,9 @@ namespace DATEX_ProjectDatabase.Interfaces
         int GetTotalProjectsCount();
 
 
+        Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes);
+        Task UpdateProjectsAsync(IEnumerable<Project> projects);
+
         void Add(Project project);
         void Update(Project project);
 

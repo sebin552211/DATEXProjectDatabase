@@ -12,6 +12,10 @@ namespace DATEX_ProjectDatabase.Interfaces
         void UpdateProjectEditableFields(int projectId, Project project);
         void DeleteProject(int projectId);
         Project GetProjectByCode(string projectCode);
+        public IEnumerable<Project> SearchProjects(string query);
+        IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize);
+        int GetTotalProjectsCount();
+
 
         Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes);
         Task UpdateProjectsAsync(IEnumerable<Project> projects);

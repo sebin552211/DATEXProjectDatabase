@@ -186,6 +186,33 @@ namespace DATEX_ProjectDatabase.Controllers
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+        [HttpGet("search")]
+        public IActionResult SearchProjects(string query)
+        {
+            var projects = _projectRepository.SearchProjects(query);
+
+            if (projects == null || !projects.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(projects);
+        }
+        [HttpGet("paged")]
+        public IActionResult GetPagedProjects(int pageNumber, int pageSize)
+        {
+            var pagedProjects = _projectRepository.GetPagedProjects(pageNumber, pageSize);
+            var totalProjects = _projectRepository.GetTotalProjectsCount();
+
+            var response = new
+            {
+                TotalProjects = totalProjects,
+                Projects = pagedProjects
+            };
+
+            return Ok(response);
+        }
+
 
         // Update Projects from Excel Data
         [HttpPost("update")]

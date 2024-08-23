@@ -94,6 +94,34 @@ namespace DATEX_ProjectDatabase.Repository
             return await _context.Projects
                 .FirstOrDefaultAsync(p => p.ProjectCode == projectCode);
         }
+        public IEnumerable<Project> SearchProjects(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return _context.Projects.ToList();
+            }
+
+            return _context.Projects
+            .AsEnumerable() // Fetches data from the database
+            .Where(p => p.ProjectName.Contains(query, StringComparison.OrdinalIgnoreCase)) // Filters in-memory
+            .ToList();
+
+        }
+
+        public IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize)
+        {
+            return _context.Projects
+                           .OrderBy(p => p.ProjectId)
+                           .Skip((pageNumber - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToList();
+        }
+
+        public int GetTotalProjectsCount()
+        {
+            return _context.Projects.Count();
+        }
+
 
         public void AddProjectEditableFields(Project project)
         {

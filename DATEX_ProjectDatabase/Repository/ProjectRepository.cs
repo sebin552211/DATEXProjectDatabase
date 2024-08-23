@@ -130,7 +130,23 @@ namespace DATEX_ProjectDatabase.Repository
 
         public void UpdateProjectEditableFields(int projectId, Project project)
         {
-            throw new NotImplementedException();
+            var existingProject = _context.Projects.Find(projectId);
+
+            if (existingProject != null)
+            {
+                // Update only the editable fields
+                existingProject.SQA = project.SQA;
+                existingProject.ForecastedEndDate = project.ForecastedEndDate;
+                existingProject.VOCEligibilityDate = project.VOCEligibilityDate;
+                existingProject.ProjectDurationInDays = project.ProjectDurationInDays;
+                existingProject.ProjectDurationInMonths = project.ProjectDurationInMonths;
+                existingProject.ProjectType = project.ProjectType;
+                existingProject.Domain = project.Domain;
+                existingProject.DatabaseUsed = project.DatabaseUsed;
+                existingProject.CloudUsed = project.CloudUsed;
+                existingProject.FeedbackStatus = project.FeedbackStatus;
+                existingProject.MailStatus = project.MailStatus;
+            }
         }
 
         public Project GetProjectByCode(string projectCode)

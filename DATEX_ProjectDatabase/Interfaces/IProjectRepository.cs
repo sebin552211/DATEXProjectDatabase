@@ -13,6 +13,9 @@ namespace DATEX_ProjectDatabase.Interfaces
         void DeleteProject(int projectId);
         Project GetProjectByCode(string projectCode);
 
+        Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes);
+        Task UpdateProjectsAsync(IEnumerable<Project> projects);
+
         void Add(Project project);
         void Update(Project project);
 

@@ -131,6 +131,33 @@ namespace DATEX_ProjectDatabase.Controllers
 
             return NoContent();
         }
+        [HttpGet("search")]
+        public IActionResult SearchProjects(string query)
+        {
+            var projects = _projectRepository.SearchProjects(query);
+
+            if (projects == null || !projects.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(projects);
+        }
+        [HttpGet("paged")]
+        public IActionResult GetPagedProjects(int pageNumber, int pageSize)
+        {
+            var pagedProjects = _projectRepository.GetPagedProjects(pageNumber, pageSize);
+            var totalProjects = _projectRepository.GetTotalProjectsCount();
+
+            var response = new
+            {
+                TotalProjects = totalProjects,
+                Projects = pagedProjects
+            };
+
+            return Ok(response);
+        }
+
 
     }
 }

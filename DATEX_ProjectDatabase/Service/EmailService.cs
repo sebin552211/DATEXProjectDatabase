@@ -12,7 +12,7 @@ namespace DATEX_ProjectDatabase.Service
         private readonly string _smtpUser = "emmatheresajose12.4@gmail.com"; // Replace with your SMTP username
         private readonly string _smtpPass = "sokg bbzh csvz fssv"; // Replace with your SMTP app password
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task<bool> SendEmailAsync(string to, string subject, string body)
         {
             var smtpClient = new SmtpClient(_smtpServer)
             {
@@ -34,10 +34,12 @@ namespace DATEX_ProjectDatabase.Service
             {
                 await smtpClient.SendMailAsync(mailMessage);
                 Console.WriteLine("Email sent successfully.");
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send email: {ex.Message}");
+                return false;
             }
         }
     }

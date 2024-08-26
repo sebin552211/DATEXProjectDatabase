@@ -153,5 +153,15 @@ namespace DATEX_ProjectDatabase.Repository
         {
             throw new NotImplementedException();
         }
+
+     /*   public async Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync()
+        {
+            var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+
+            return await _context.Projects
+                .Where(p => p.ProjectStartDate >= threeMonthsAgo)
+                .ToListAsync();
+        }*/
+
     }
 }

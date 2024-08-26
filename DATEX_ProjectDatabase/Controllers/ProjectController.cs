@@ -264,5 +264,35 @@ namespace DATEX_ProjectDatabase.Controllers
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+
+       /* [HttpGet("recent-projects/customers")]*/
+       /* public async Task<IActionResult> GetRecentProjectCustomers()
+        {
+            try
+            {
+                var recentProjects = await _projectRepository.GetProjectsFromLastThreeMonthsAsync();
+
+                var customerProjects = recentProjects
+                    .GroupBy(p => p.CustomerName)
+                    .Select(group => new
+                    {
+                        CustomerName = group.Key,
+                        NumberOfProjects = group.Count(),
+                        Projects = group.ToList()
+                    })
+                    .ToList();
+
+                return Ok(customerProjects);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+*/
+
     }
+
+
 }

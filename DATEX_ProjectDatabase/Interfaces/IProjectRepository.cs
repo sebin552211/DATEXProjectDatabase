@@ -24,5 +24,6 @@ namespace DATEX_ProjectDatabase.Interfaces
         void Update(Project project);
 
         void Save();
+       /* Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync();*/
     }
 }

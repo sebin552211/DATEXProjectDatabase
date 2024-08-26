@@ -1,6 +1,6 @@
 ﻿using DATEX_ProjectDatabase.Model;
 
-namespace DATEX_ProjectDatabase.Interfaces
+namespace DATEX_ProjectDatabase.Service
 {
     public interface IExternalApiService
     {

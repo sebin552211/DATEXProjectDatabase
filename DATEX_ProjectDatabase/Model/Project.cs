@@ -1,4 +1,6 @@
-﻿namespace DATEX_ProjectDatabase.Models
+﻿using DATEX_ProjectDatabase.Model;
+
+namespace DATEX_ProjectDatabase.Models
 {
     public class Project
     {
@@ -30,5 +32,9 @@
         public string CloudUsed { get; set; }
         public string FeedbackStatus { get; set; } // (Received, Pending)
         public string MailStatus { get; set; } // (Initiated, Not Initiated)
+
+        public ICollection<ProjectManagers> ProjectManagers { get; set; }
+
+
     }
 }

@@ -4,6 +4,7 @@ using DATEX_ProjectDatabase.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240825084651_ProjectManagerTable")]
+    partial class ProjectManagerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,8 +69,11 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ProjectsId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProjectManagerId");
 
@@ -194,13 +200,9 @@ namespace DATEX_ProjectDatabase.Migrations
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
                 {
-                    b.HasOne("DATEX_ProjectDatabase.Models.Project", "Project")
-                        .WithMany("ProjectManagers")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
+                    b.HasOne("DATEX_ProjectDatabase.Models.Project", null)
+                        .WithMany("Projects")
+                        .HasForeignKey("ProjectId");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
@@ -210,7 +212,7 @@ namespace DATEX_ProjectDatabase.Migrations
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
                 {
-                    b.Navigation("ProjectManagers");
+                    b.Navigation("Projects");
                 });
 #pragma warning restore 612, 618
         }

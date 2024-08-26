@@ -1,33 +1,55 @@
+using Hangfire;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using DATEX_ProjectDatabase.Data;
+using DATEX_ProjectDatabase.Service;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Repository;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure database contexts
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddHttpClient<IExternalApiService, ExternalApiService>();
+// Configure Hangfire
+builder.Services.AddHangfire(configuration =>
+    configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                  .UseSimpleAssemblyNameTypeSerializer()
+                  .UseRecommendedSerializerSettings()
+                  .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+builder.Services.AddHangfireServer();
+
+
+builder.Services.AddHttpClient();
+
+// Register your services and repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectManagerRepository, ProjectManagerRepository>();
+builder.Services.AddScoped<IProjectManagerService, ProjectManagerService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ProjectJobService>();
+builder.Services.AddScoped<IExternalApiService, ExternalApiService>();
 
-// Configure CORS policy to allow requests from Angular app
+
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
         builder => builder
-            .WithOrigins("http://localhost:4200") // Allow Angular app origin
-            .AllowAnyMethod()                     // Allow any HTTP method
-            .AllowAnyHeader()                     // Allow any headers
-            .AllowCredentials());                 // Allow credentials if needed (optional)
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
@@ -39,12 +61,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAngularApp"); // Use the CORS policy
-
+app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
 
+// Use Hangfire dashboard
+app.UseHangfireDashboard();
+
+// Set up a recurring job
+RecurringJob.AddOrUpdate<ProjectJobService>(
+    "check-voc-eligibility",
+    service => service.CheckAndNotifyVocEligibilityAsync(),
+    Cron.Daily);
+
+// Run the application
 app.Run();

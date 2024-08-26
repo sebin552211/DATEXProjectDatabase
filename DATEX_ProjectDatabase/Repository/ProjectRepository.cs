@@ -55,7 +55,7 @@ namespace DATEX_ProjectDatabase.Repository
         }
 
         // Existing methods for CRUD operations with the Project entity
-        public IEnumerable<Project> GetAllProjects()
+       public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
             return _context.Projects.ToList();
         }
@@ -154,14 +154,27 @@ namespace DATEX_ProjectDatabase.Repository
             throw new NotImplementedException();
         }
 
-     /*   public async Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync()
+        public async Task<Project> GetProjectByIdAsync(int projectId)
         {
-            var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+            return await _context.Projects.FindAsync(projectId);
+        }
+
+
+        public async Task<IEnumerable<Project>> GetProjectsWithVocEligibilityDateAsync(DateTime date)
+        {
+            var startOfDay = date.Date;
+            var endOfDay = startOfDay.AddDays(1).AddTicks(-1);
 
             return await _context.Projects
-                .Where(p => p.ProjectStartDate >= threeMonthsAgo)
+                .Where(p => p.VOCEligibilityDate >= startOfDay && p.VOCEligibilityDate <= endOfDay)
                 .ToListAsync();
-        }*/
+        }
+        public async Task UpdateProjectAsync(Project project)
+        {
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
+        }
+
 
     }
 }

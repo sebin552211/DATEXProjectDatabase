@@ -1,10 +1,11 @@
 ﻿using DATEX_ProjectDatabase.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DATEX_ProjectDatabase.Interfaces
 {
     public interface IProjectRepository
     {
-        IEnumerable<Project> GetAllProjects();
+   Task<IEnumerable<Project>> GetAllProjectsAsync();
         Project GetProjectById(int projectId);
 
         // Admin operations on editable fields
@@ -16,6 +17,9 @@ namespace DATEX_ProjectDatabase.Interfaces
         IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize);
         int GetTotalProjectsCount();
 
+        Task<Project> GetProjectByIdAsync(int projectId);
+
+        Task<IEnumerable<Project>> GetProjectsWithVocEligibilityDateAsync(DateTime date);
 
         Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes);
         Task UpdateProjectsAsync(IEnumerable<Project> projects);
@@ -24,6 +28,9 @@ namespace DATEX_ProjectDatabase.Interfaces
         void Update(Project project);
 
         void Save();
-       /* Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync();*/
+        /* Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync();*/
+
+        Task UpdateProjectAsync(Project project);
+       
     }
 }

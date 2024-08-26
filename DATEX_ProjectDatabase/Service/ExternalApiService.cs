@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
 
-namespace DATEX_ProjectDatabase.Repository
+namespace DATEX_ProjectDatabase.Service
 {
     public class ExternalApiService : IExternalApiService
     {

@@ -1,5 +1,6 @@
 ﻿using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Models;
+using DATEX_ProjectDatabase.Service;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -91,7 +92,7 @@ namespace DATEX_ProjectDatabase.Controllers
         {
             try
             {
-                var projects = _projectRepository.GetAllProjects();
+                var projects = _projectRepository.GetAllProjectsAsync();
                 return Ok(projects);
             }
             catch (Exception ex)

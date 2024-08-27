@@ -25,7 +25,7 @@ namespace DATEX_ProjectDatabase.Service
             _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task<bool> SendEmailAsync(string to, string subject, string body)
         {
             var smtpClient = new SmtpClient(_smtpServer)
             {
@@ -47,10 +47,12 @@ namespace DATEX_ProjectDatabase.Service
             {
                 await smtpClient.SendMailAsync(mailMessage);
                 Console.WriteLine("Email sent successfully.");
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send email: {ex.Message}");
+                return false;
             }
         }
     }

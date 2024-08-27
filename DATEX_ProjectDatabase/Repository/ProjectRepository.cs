@@ -169,6 +169,11 @@ namespace DATEX_ProjectDatabase.Repository
                 .Where(p => p.VOCEligibilityDate >= startOfDay && p.VOCEligibilityDate <= endOfDay)
                 .ToListAsync();
         }
+        public async Task UpdateProjectAsync(Project project)
+        {
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
+        }
 
 
     }

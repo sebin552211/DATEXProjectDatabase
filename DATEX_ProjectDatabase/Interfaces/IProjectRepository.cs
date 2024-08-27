@@ -1,4 +1,5 @@
 ﻿using DATEX_ProjectDatabase.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DATEX_ProjectDatabase.Interfaces
 {
@@ -27,5 +28,9 @@ namespace DATEX_ProjectDatabase.Interfaces
         void Update(Project project);
 
         void Save();
+        /* Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync();*/
+
+        Task UpdateProjectAsync(Project project);
+       
     }
 }

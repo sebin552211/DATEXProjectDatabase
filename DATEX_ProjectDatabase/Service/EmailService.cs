@@ -1,4 +1,6 @@
 ﻿using DATEX_ProjectDatabase.Interfaces;
+using DotNetEnv;
+using System;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -7,10 +9,21 @@ namespace DATEX_ProjectDatabase.Service
 {
     public class EmailService : IEmailService
     {
-        private readonly string _smtpServer = "smtp.gmail.com"; // Replace with your SMTP server
-        private readonly int _smtpPort = 587; // Replace with your SMTP port
-        private readonly string _smtpUser = "emmatheresajose12.4@gmail.com"; // Replace with your SMTP username
-        private readonly string _smtpPass = "sokg bbzh csvz fssv"; // Replace with your SMTP app password
+        private readonly string _smtpServer;
+        private readonly int _smtpPort;
+        private readonly string _smtpUser;
+        private readonly string _smtpPass;
+
+        public EmailService()
+        {
+            // Load environment variables from .env file
+            Env.Load();
+
+            _smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
+            _smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT"));
+            _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
+            _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
+        }
 
         public async Task<bool> SendEmailAsync(string to, string subject, string body)
         {

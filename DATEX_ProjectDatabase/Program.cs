@@ -9,6 +9,8 @@ using DATEX_ProjectDatabase.Data;
 using DATEX_ProjectDatabase.Service;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Repository;
+using Microsoft.AspNetCore.SignalR;
+using DATEX_ProjectDatabase.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +31,6 @@ builder.Services.AddHangfire(configuration =>
                   .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
 builder.Services.AddHangfireServer();
 
-
 builder.Services.AddHttpClient();
 
 // Register your services and repositories
@@ -40,6 +41,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ProjectJobService>();
 builder.Services.AddScoped<IExternalApiService, ExternalApiService>();
 
+// Add SignalR services
+builder.Services.AddSignalR();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -66,6 +69,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map the SignalR hub
+app.MapHub<MailStatusHub>("/mailStatusHub");
 
 // Use Hangfire dashboard
 app.UseHangfireDashboard();

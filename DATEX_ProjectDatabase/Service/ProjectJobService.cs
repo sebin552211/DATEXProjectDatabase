@@ -1,4 +1,6 @@
 ﻿using DATEX_ProjectDatabase.Interfaces;
+using DATEX_ProjectDatabase.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DATEX_ProjectDatabase.Service
 {
@@ -7,15 +9,21 @@ namespace DATEX_ProjectDatabase.Service
     private readonly IProjectRepository _projectRepository;
     private readonly IProjectManagerRepository _projectManagerRepository;
     private readonly IEmailService _emailService;
+    private readonly IHubContext<MailStatusHub> _hubContext;
 
-    public ProjectJobService(IProjectRepository projectRepository, IProjectManagerRepository projectManagerRepository, IEmailService emailService)
-    {
-        _projectRepository = projectRepository;
-        _projectManagerRepository = projectManagerRepository;
-        _emailService = emailService;
-    }
+        public ProjectJobService(
+                IProjectRepository projectRepository,
+                IProjectManagerRepository projectManagerRepository,
+                IEmailService emailService,
+                IHubContext<MailStatusHub> hubContext)
+        {
+            _projectRepository = projectRepository;
+            _projectManagerRepository = projectManagerRepository;
+            _emailService = emailService;
+            _hubContext = hubContext;
+        }
 
-    public async Task CheckAndNotifyVocEligibilityAsync()
+        public async Task CheckAndNotifyVocEligibilityAsync()
     {
         var today = DateTime.Today;
         var projects = (await _projectRepository.GetAllProjectsAsync())
@@ -35,14 +43,16 @@ namespace DATEX_ProjectDatabase.Service
                 {
                     bool emailSent = await _emailService.SendEmailAsync(manager.Email, subject, body);
 
-                    if (emailSent)
-                    {
-                        // Update the mail status in the database
-                        project.MailStatus = "Sent";
-                        await _projectRepository.UpdateProjectAsync(project);
+                        if (emailSent)
+                        {
+                            project.MailStatus = "Sent";
+                            await _projectRepository.UpdateProjectAsync(project);
+
+                            await _hubContext.Clients.All.SendAsync("MailStatusUpdated");
+                        }
+
                     }
-                }
-                catch (Exception ex)
+                    catch (Exception ex)
                 {
                     // Log the exception or handle it as needed
                     Console.WriteLine($"Failed to send email to {manager.Email}: {ex.Message}");

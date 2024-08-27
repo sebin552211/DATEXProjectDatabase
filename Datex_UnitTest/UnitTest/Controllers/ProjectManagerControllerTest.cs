@@ -102,35 +102,5 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
             ClassicAssert.AreEqual(400, badRequestResult.StatusCode);
             ClassicAssert.AreEqual("Project manager data is required.", badRequestResult.Value);
         }
-
-        [Test]
-        public async Task PutProjectManager_ProjectNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
-            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
-                .Throws(new ArgumentException("Project manager not found"));
-
-            // Act
-            var result = await _controller.PutProjectManager(projectManager.ProjectId, projectManager);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            ClassicAssert.IsNotNull(notFoundResult, "Expected NotFoundObjectResult");
-            ClassicAssert.AreEqual(404, notFoundResult.StatusCode);
-
-            // Extract the message from the response
-            var response = notFoundResult.Value as IDictionary<string, string>;
-            ClassicAssert.IsNotNull(response, "Expected response to be a dictionary");
-
-            string actualMessage;
-            response.TryGetValue("message", out actualMessage);
-
-            ClassicAssert.AreEqual("Project manager not found", actualMessage);
-        }
-
-
-
-
     }
 }

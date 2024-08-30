@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace DATEX_ProjectDatabase.Service
 {
-  
    public class ProjectJobService
 {
     private readonly IProjectRepository _projectRepository;

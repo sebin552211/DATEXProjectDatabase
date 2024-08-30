@@ -266,33 +266,62 @@ namespace DATEX_ProjectDatabase.Controllers
             }
         }
 
-       /* [HttpGet("recent-projects/customers")]*/
-       /* public async Task<IActionResult> GetRecentProjectCustomers()
+        [HttpGet("filter")]
+       
+        public async Task<IActionResult> GetFilteredProjects(
+            [FromQuery] string du = null,
+            [FromQuery] string duHead = null,
+            [FromQuery] DateTime? projectStartDate = null,
+            [FromQuery] DateTime? projectEndDate = null,
+            [FromQuery] string projectManager = null,
+            [FromQuery] string contractType = null,
+            [FromQuery] string customerName = null,
+            [FromQuery] string region = null,
+            [FromQuery] string technology = null,
+            [FromQuery] string status = null,
+            [FromQuery] string sqa = null,
+            [FromQuery] DateTime? vocEligibilityDate = null,
+            [FromQuery] string projectType = null,
+            [FromQuery] string domain = null,
+            [FromQuery] string databaseUsed = null,
+            [FromQuery] string cloudUsed = null,
+            [FromQuery] string feedbackStatus = null,
+            [FromQuery] string mailStatus = null)
         {
             try
             {
-                var recentProjects = await _projectRepository.GetProjectsFromLastThreeMonthsAsync();
+                var projects = await _projectRepository.GetFilteredProjectsAsync(
+                    du,
+                    duHead,
+                    projectStartDate,
+                    projectEndDate,
+                    projectManager,
+                    contractType,
+                    customerName,
+                    region,
+                    technology,
+                    status,
+                    sqa,
+                    vocEligibilityDate,
+                    projectType,
+                    domain,
+                    databaseUsed,
+                    cloudUsed,
+                    feedbackStatus,
+                    mailStatus);
 
-                var customerProjects = recentProjects
-                    .GroupBy(p => p.CustomerName)
-                    .Select(group => new
-                    {
-                        CustomerName = group.Key,
-                        NumberOfProjects = group.Count(),
-                        Projects = group.ToList()
-                    })
-                    .ToList();
+                if (projects == null || !projects.Any())
+                {
+                    return NotFound(new { message = "No projects found matching the criteria" });
+                }
 
-                return Ok(customerProjects);
+                return Ok(projects);
             }
             catch (Exception ex)
             {
-                // Log the exception
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
-*/
-
     }
 
 

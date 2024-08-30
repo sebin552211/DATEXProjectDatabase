@@ -28,9 +28,30 @@ namespace DATEX_ProjectDatabase.Interfaces
         void Update(Project project);
 
         void Save();
-        /* Task<IEnumerable<Project>> GetProjectsFromLastThreeMonthsAsync();*/
+       
 
         Task UpdateProjectAsync(Project project);
-       
+
+        Task<IEnumerable<Project>> GetFilteredProjectsAsync(
+           string du = null,
+           string duHead = null,
+           DateTime? projectStartDate = null,
+           DateTime? projectEndDate = null,
+           string projectManager = null,
+           string contractType = null,
+           string customerName = null,
+           string region = null,
+           string technology = null,
+           string status = null,
+           string sqa = null,
+           DateTime? vocEligibilityDate = null,
+           string projectType = null,
+           string domain = null,
+           string databaseUsed = null,
+           string cloudUsed = null,
+           string feedbackStatus = null,
+           string mailStatus = null);
+
+        // Other existing methods...
     }
 }

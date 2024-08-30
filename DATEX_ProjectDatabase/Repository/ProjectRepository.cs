@@ -55,7 +55,7 @@ namespace DATEX_ProjectDatabase.Repository
         }
 
         // Existing methods for CRUD operations with the Project entity
-       public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
             return _context.Projects.ToList();
         }
@@ -175,6 +175,85 @@ namespace DATEX_ProjectDatabase.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<Project>> GetFilteredProjectsAsync(
+          string du = null,
+          string duHead = null,
+          DateTime? projectStartDate = null,
+          DateTime? projectEndDate = null,
+          string projectManager = null,
+          string contractType = null,
+          string customerName = null,
+          string region = null,
+          string technology = null,
+          string status = null,
+          string sqa = null,
+          DateTime? vocEligibilityDate = null,
+          string projectType = null,
+          string domain = null,
+          string databaseUsed = null,
+          string cloudUsed = null,
+          string feedbackStatus = null,
+          string mailStatus = null)
+        {
+            var query = _context.Projects.AsQueryable();
 
+            if (!string.IsNullOrEmpty(du))
+                query = query.Where(p => p.DU == du);
+
+            if (!string.IsNullOrEmpty(duHead))
+                query = query.Where(p => p.DUHead == duHead);
+
+            if (projectStartDate.HasValue)
+                query = query.Where(p => p.ProjectStartDate >= projectStartDate.Value);
+
+            if (projectEndDate.HasValue)
+                query = query.Where(p => p.ProjectEndDate <= projectEndDate.Value);
+
+            if (!string.IsNullOrEmpty(projectManager))
+                query = query.Where(p => p.ProjectManager == projectManager);
+
+            if (!string.IsNullOrEmpty(contractType))
+                query = query.Where(p => p.ContractType == contractType);
+
+            if (!string.IsNullOrEmpty(customerName))
+                query = query.Where(p => p.CustomerName == customerName);
+
+            if (!string.IsNullOrEmpty(region))
+                query = query.Where(p => p.Region == region);
+
+            if (!string.IsNullOrEmpty(technology))
+                query = query.Where(p => p.Technology == technology);
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(p => p.Status == status);
+
+            if (!string.IsNullOrEmpty(sqa))
+                query = query.Where(p => p.SQA == sqa);
+
+            if (vocEligibilityDate.HasValue)
+                query = query.Where(p => p.VOCEligibilityDate == vocEligibilityDate.Value);
+
+            if (!string.IsNullOrEmpty(projectType))
+                query = query.Where(p => p.ProjectType == projectType);
+
+            if (!string.IsNullOrEmpty(domain))
+                query = query.Where(p => p.Domain == domain);
+
+            if (!string.IsNullOrEmpty(databaseUsed))
+                query = query.Where(p => p.DatabaseUsed == databaseUsed);
+
+            if (!string.IsNullOrEmpty(cloudUsed))
+                query = query.Where(p => p.CloudUsed == cloudUsed);
+
+            if (!string.IsNullOrEmpty(feedbackStatus))
+                query = query.Where(p => p.FeedbackStatus == feedbackStatus);
+
+            if (!string.IsNullOrEmpty(mailStatus))
+                query = query.Where(p => p.MailStatus == mailStatus);
+
+            return await query.ToListAsync();
+        }
+    
     }
 }
+    

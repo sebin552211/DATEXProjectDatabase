@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240826050842_BackgroundJobCreate")]
-    partial class BackgroundJobCreate
+    [Migration("20240904121618_InitialCreateWithExpData")]
+    partial class InitialCreateWithExpData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,6 +95,40 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.VOCAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Communication")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerFocus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EngageService")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Knowledge")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanningAndControl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VocAnalyses");
+                });
+
             modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
                 {
                     b.Property<int>("ProjectId")
@@ -133,7 +167,7 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("MailStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfResources")
+                    b.Property<int?>("NumberOfResources")
                         .HasColumnType("int");
 
                     b.Property<string>("ProjectCode")

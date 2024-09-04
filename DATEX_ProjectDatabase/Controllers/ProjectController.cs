@@ -42,7 +42,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         ProjectEndDate = externalProject.ProjectEndDate,
                         ProjectManager = externalProject.ProjectManager,
                         ContractType = externalProject.ContractType,
-                        NumberOfResources = externalProject.NumberOfResources,
+                        NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
                         CustomerName = externalProject.CustomerName,
                         Region = externalProject.Region,
                         Technology = externalProject.Technology,
@@ -62,7 +62,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         existingProject.ProjectEndDate = externalProject.ProjectEndDate;
                         existingProject.ProjectManager = externalProject.ProjectManager;
                         existingProject.ContractType = externalProject.ContractType;
-                        existingProject.NumberOfResources = externalProject.NumberOfResources;
+                        existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
                         existingProject.CustomerName = externalProject.CustomerName;
                         existingProject.Region = externalProject.Region;
                         existingProject.Technology = externalProject.Technology;
@@ -83,10 +83,14 @@ namespace DATEX_ProjectDatabase.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (implement logging as needed)
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+
+        // Other actions remain the same...
 
         // Get All Projects
         [HttpGet]
@@ -100,6 +104,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -120,6 +126,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -137,6 +145,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -162,6 +172,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -186,6 +198,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -208,6 +222,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -232,6 +248,8 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -271,10 +289,12 @@ namespace DATEX_ProjectDatabase.Controllers
                         existingProject.CloudUsed = row.CloudUsed;
                         existingProject.FeedbackStatus = row.FeedbackStatus;
                         existingProject.MailStatus = row.MailStatus;
+                        existingProject.Technology = row.Technology;
+                        // Add any other fields that need updating
                     }
 
                     return existingProject;
-                }).Where(p => p != null).ToList();
+                }).ToList();
 
                 await _projectRepository.UpdateProjectsAsync(updatedProjects);
 
@@ -283,31 +303,33 @@ namespace DATEX_ProjectDatabase.Controllers
             catch (Exception ex)
             {
                 // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
 
-        // Get Filtered Projects
         [HttpGet("filter")]
+
         public async Task<IActionResult> GetFilteredProjects(
-            [FromQuery] string du = null,
-            [FromQuery] string duHead = null,
-            [FromQuery] DateTime? projectStartDate = null,
-            [FromQuery] DateTime? projectEndDate = null,
-            [FromQuery] string projectManager = null,
-            [FromQuery] string contractType = null,
-            [FromQuery] string customerName = null,
-            [FromQuery] string region = null,
-            [FromQuery] string technology = null,
-            [FromQuery] string status = null,
-            [FromQuery] string sqa = null,
-            [FromQuery] DateTime? vocEligibilityDate = null,
-            [FromQuery] string projectType = null,
-            [FromQuery] string domain = null,
-            [FromQuery] string databaseUsed = null,
-            [FromQuery] string cloudUsed = null,
-            [FromQuery] string feedbackStatus = null,
-            [FromQuery] string mailStatus = null)
+     [FromQuery] string du = null,
+     [FromQuery] string duHead = null,
+     [FromQuery] DateTime? projectStartDate = null,
+     [FromQuery] DateTime? projectEndDate = null,
+     [FromQuery] string projectManager = null,
+     [FromQuery] string contractType = null,
+     [FromQuery] string customerName = null,
+     [FromQuery] string region = null,
+     [FromQuery] string technology = null,
+     [FromQuery] string status = null,
+     [FromQuery] string sqa = null,
+     [FromQuery] DateTime? vocEligibilityDate = null,
+     [FromQuery] string projectType = null,
+     [FromQuery] string domain = null,
+     [FromQuery] string databaseUsed = null,
+     [FromQuery] string cloudUsed = null,
+     [FromQuery] string feedbackStatus = null,
+     [FromQuery] string mailStatus = null)
         {
             try
             {

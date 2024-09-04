@@ -49,7 +49,8 @@ namespace DATEX_ProjectDatabase.Controllers
                         Status = externalProject.Status
                     };
 
-                    var existingProject = _projectRepository.GetProjectByCode(externalProject.ProjectCode);
+                    // Use asynchronous method to get project by code
+                    var existingProject = await _projectRepository.GetProjectByCodeAsync(externalProject.ProjectCode);
 
                     if (existingProject != null)
                     {
@@ -75,24 +76,25 @@ namespace DATEX_ProjectDatabase.Controllers
                     }
                 }
 
-                _projectRepository.Save();
+                // Use asynchronous SaveChanges
+                await _projectRepository.SaveAsync();
 
                 return Ok(new { message = "Projects synced with external API" });
             }
             catch (Exception ex)
             {
-                // Log the exception
+                // Log the exception (implement logging as needed)
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
 
         // Get All Projects
         [HttpGet]
-        public IActionResult GetAllProjects()
+        public async Task<IActionResult> GetAllProjects()
         {
             try
             {
-                var projects = _projectRepository.GetAllProjectsAsync();
+                var projects = await _projectRepository.GetAllProjectsAsync();
                 return Ok(projects);
             }
             catch (Exception ex)
@@ -104,11 +106,11 @@ namespace DATEX_ProjectDatabase.Controllers
 
         // Get Project by ID
         [HttpGet("{id}")]
-        public IActionResult GetProjectById(int id)
+        public async Task<IActionResult> GetProjectById(int id)
         {
             try
             {
-                var project = _projectRepository.GetProjectById(id);
+                var project = await _projectRepository.GetProjectByIdAsync(id);
                 if (project == null)
                 {
                     return NotFound(new { message = "Project not found" });
@@ -124,12 +126,12 @@ namespace DATEX_ProjectDatabase.Controllers
 
         // Add Project with Editable Fields
         [HttpPost("editable")]
-        public IActionResult AddProjectEditableFields([FromBody] Project project)
+        public async Task<IActionResult> AddProjectEditableFields([FromBody] Project project)
         {
             try
             {
                 _projectRepository.AddProjectEditableFields(project);
-                _projectRepository.Save();
+                await _projectRepository.SaveAsync();
                 return CreatedAtAction("GetProjectById", new { id = project.ProjectId }, project);
             }
             catch (Exception ex)
@@ -141,11 +143,11 @@ namespace DATEX_ProjectDatabase.Controllers
 
         // Update Project with Editable Fields
         [HttpPut("editable/{id}")]
-        public IActionResult UpdateProjectEditableFields(int id, [FromBody] Project project)
+        public async Task<IActionResult> UpdateProjectEditableFields(int id, [FromBody] Project project)
         {
             try
             {
-                var existingProject = _projectRepository.GetProjectById(id);
+                var existingProject = await _projectRepository.GetProjectByIdAsync(id);
 
                 if (existingProject == null)
                 {
@@ -153,7 +155,7 @@ namespace DATEX_ProjectDatabase.Controllers
                 }
 
                 _projectRepository.UpdateProjectEditableFields(id, project);
-                _projectRepository.Save();
+                await _projectRepository.SaveAsync();
 
                 return NoContent();
             }
@@ -166,18 +168,18 @@ namespace DATEX_ProjectDatabase.Controllers
 
         // Delete Project
         [HttpDelete("{id}")]
-        public IActionResult DeleteProject(int id)
+        public async Task<IActionResult> DeleteProject(int id)
         {
             try
             {
-                var project = _projectRepository.GetProjectById(id);
+                var project = await _projectRepository.GetProjectByIdAsync(id);
                 if (project == null)
                 {
                     return NotFound(new { message = "Project not found" });
                 }
 
                 _projectRepository.DeleteProject(id);
-                _projectRepository.Save();
+                await _projectRepository.SaveAsync();
 
                 return NoContent();
             }
@@ -187,33 +189,52 @@ namespace DATEX_ProjectDatabase.Controllers
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+
+        // Search Projects
         [HttpGet("search")]
-        public IActionResult SearchProjects(string query)
+        public async Task<IActionResult> SearchProjects(string query)
         {
-            var projects = _projectRepository.SearchProjects(query);
-
-            if (projects == null || !projects.Any())
+            try
             {
-                return NotFound();
+                var projects = await Task.Run(() => _projectRepository.SearchProjects(query));
+
+                if (projects == null || !projects.Any())
+                {
+                    return NotFound();
+                }
+
+                return Ok(projects);
             }
-
-            return Ok(projects);
-        }
-        [HttpGet("paged")]
-        public IActionResult GetPagedProjects(int pageNumber, int pageSize)
-        {
-            var pagedProjects = _projectRepository.GetPagedProjects(pageNumber, pageSize);
-            var totalProjects = _projectRepository.GetTotalProjectsCount();
-
-            var response = new
+            catch (Exception ex)
             {
-                TotalProjects = totalProjects,
-                Projects = pagedProjects
-            };
-
-            return Ok(response);
+                // Log the exception
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
         }
 
+        // Get Paged Projects
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedProjects(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var pagedProjects = await Task.Run(() => _projectRepository.GetPagedProjects(pageNumber, pageSize));
+                var totalProjects = await Task.Run(() => _projectRepository.GetTotalProjectsCount());
+
+                var response = new
+                {
+                    TotalProjects = totalProjects,
+                    Projects = pagedProjects
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
 
         // Update Projects from Excel Data
         [HttpPost("update")]
@@ -266,8 +287,8 @@ namespace DATEX_ProjectDatabase.Controllers
             }
         }
 
+        // Get Filtered Projects
         [HttpGet("filter")]
-       
         public async Task<IActionResult> GetFilteredProjects(
             [FromQuery] string du = null,
             [FromQuery] string duHead = null,
@@ -323,6 +344,4 @@ namespace DATEX_ProjectDatabase.Controllers
             }
         }
     }
-
-
 }

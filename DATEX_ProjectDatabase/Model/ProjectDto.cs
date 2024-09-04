@@ -10,7 +10,7 @@
         public DateTime ProjectEndDate { get; set; }
         public string ProjectManager { get; set; }
         public string ContractType { get; set; }
-        public int NumberOfResources { get; set; }
+        public int? NumberOfResources { get; set; }
         public string CustomerName { get; set; }
         public string Region { get; set; }
         public string Technology { get; set; }

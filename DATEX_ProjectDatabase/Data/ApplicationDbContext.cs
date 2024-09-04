@@ -34,8 +34,13 @@ namespace DATEX_ProjectDatabase.Data
                 .WithMany(r => r.Employees)
                 .HasForeignKey(e => e.RoleId);
 
+            modelBuilder.Entity<Project>()
+                .Property(p => p.NumberOfResources)
+                .HasDefaultValue(null)
+                .IsRequired(false);
 
-      
+
+
 
         }
 

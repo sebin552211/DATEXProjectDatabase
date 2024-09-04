@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DATEX_ProjectDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialcreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,6 +61,46 @@ namespace DATEX_ProjectDatabase.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VocAnalyses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerFocus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PlanningAndControl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Communication = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Knowledge = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EngageService = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Score = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocAnalyses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectManagers",
+                columns: table => new
+                {
+                    ProjectManagerId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProjectId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectManagers", x => x.ProjectManagerId);
+                    table.ForeignKey(
+                        name: "FK_ProjectManagers_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employees",
                 columns: table => new
                 {
@@ -87,6 +127,11 @@ namespace DATEX_ProjectDatabase.Migrations
                 name: "IX_Employees_RoleId",
                 table: "Employees",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectManagers_ProjectId",
+                table: "ProjectManagers",
+                column: "ProjectId");
         }
 
         /// <inheritdoc />
@@ -96,10 +141,16 @@ namespace DATEX_ProjectDatabase.Migrations
                 name: "Employees");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "ProjectManagers");
+
+            migrationBuilder.DropTable(
+                name: "VocAnalyses");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
         }
     }
 }

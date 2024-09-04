@@ -10,6 +10,7 @@ namespace DATEX_ProjectDatabase.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectManagers> ProjectManagers { get; set; }
+        public DbSet<VOCAnalysis> VocAnalyses { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

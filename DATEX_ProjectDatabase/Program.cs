@@ -1,15 +1,9 @@
 using Hangfire;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using DATEX_ProjectDatabase.Data;
 using DATEX_ProjectDatabase.Service;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Repository;
-using Microsoft.AspNetCore.SignalR;
 using DATEX_ProjectDatabase.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,10 +71,10 @@ app.MapHub<MailStatusHub>("/mailStatusHub");
 app.UseHangfireDashboard();
 
 // Set up a recurring job
-RecurringJob.AddOrUpdate<ProjectJobService>(
+/*RecurringJob.AddOrUpdate<ProjectJobService>(
     "check-voc-eligibility",
     service => service.CheckAndNotifyVocEligibilityAsync(),
-    Cron.Daily);
+    Cron.Daily);*/
 
 // Run the application
 app.Run();

@@ -3,6 +3,8 @@ using DATEX_ProjectDatabase.Migrations;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
 using DATEX_ProjectDatabase.Service;
+using DATEX_ProjectDatabase.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -17,7 +19,6 @@ namespace Datex_UnitTest.UnitTest.Services
     [TestFixture]
     public class ProjectJobServiceTest
     {
-
         [Test]
         public async Task CheckAndNotifyVocEligibilityAsync_NoProjectsWithTodayDate_NoEmailSent()
         {
@@ -25,6 +26,7 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectRepositoryMock = new Mock<IProjectRepository>();
             var projectManagerRepositoryMock = new Mock<IProjectManagerRepository>();
             var emailServiceMock = new Mock<IEmailService>();
+            var hubContext = new Mock<IHubContext<MailStatusHub>>();  // Specify the generic type
 
             projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync())
                 .ReturnsAsync(new List<Project>());
@@ -32,7 +34,8 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectJobService = new ProjectJobService(
                 projectRepositoryMock.Object,
                 projectManagerRepositoryMock.Object,
-                emailServiceMock.Object
+                emailServiceMock.Object,
+                hubContext.Object
             );
 
             // Act
@@ -42,8 +45,6 @@ namespace Datex_UnitTest.UnitTest.Services
             projectManagerRepositoryMock.Verify(repo => repo.GetProjectManagerByProjectIdAsync(It.IsAny<int>()), Times.Never);
             emailServiceMock.Verify(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
-
-
 
         [Test]
         public async Task CheckAndNotifyVocEligibilityAsync_ProjectManagerNotFound_NoEmailSent()
@@ -55,6 +56,7 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectRepositoryMock = new Mock<IProjectRepository>();
             var projectManagerRepositoryMock = new Mock<IProjectManagerRepository>();
             var emailServiceMock = new Mock<IEmailService>();
+            var hubContext = new Mock<IHubContext<MailStatusHub>>();  // Specify the generic type
 
             projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync())
                 .ReturnsAsync(new List<Project> { project });
@@ -64,7 +66,8 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectJobService = new ProjectJobService(
                 projectRepositoryMock.Object,
                 projectManagerRepositoryMock.Object,
-                emailServiceMock.Object
+                emailServiceMock.Object,
+                hubContext.Object
             );
 
             // Act
@@ -74,9 +77,6 @@ namespace Datex_UnitTest.UnitTest.Services
             emailServiceMock.Verify(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             projectRepositoryMock.Verify(repo => repo.UpdateProjectAsync(It.IsAny<Project>()), Times.Never);
         }
-
-
-
 
         [Test]
         public async Task CheckAndNotifyVocEligibilityAsync_EmailSendingFails_NoProjectUpdate()
@@ -89,6 +89,7 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectRepositoryMock = new Mock<IProjectRepository>();
             var projectManagerRepositoryMock = new Mock<IProjectManagerRepository>();
             var emailServiceMock = new Mock<IEmailService>();
+            var hubContext = new Mock<IHubContext<MailStatusHub>>();  // Specify the generic type
 
             projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync())
                 .ReturnsAsync(new List<Project> { project });
@@ -100,7 +101,8 @@ namespace Datex_UnitTest.UnitTest.Services
             var projectJobService = new ProjectJobService(
                 projectRepositoryMock.Object,
                 projectManagerRepositoryMock.Object,
-                emailServiceMock.Object
+                emailServiceMock.Object,
+                hubContext.Object
             );
 
             // Act
@@ -109,9 +111,5 @@ namespace Datex_UnitTest.UnitTest.Services
             // Assert
             projectRepositoryMock.Verify(repo => repo.UpdateProjectAsync(It.IsAny<Project>()), Times.Never);
         }
-
-
-
-
     }
 }

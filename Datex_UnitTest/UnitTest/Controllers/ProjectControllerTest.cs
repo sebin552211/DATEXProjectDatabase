@@ -109,8 +109,6 @@ namespace DATEX_ProjectDatabase.Tests
 
  
 
-
-
         [Test]
         public void SearchProjects_ProjectsExist_ReturnsOkWithProjects()
         {

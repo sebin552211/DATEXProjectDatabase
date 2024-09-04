@@ -92,6 +92,40 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.VOCAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Communication")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerFocus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EngageService")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Knowledge")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanningAndControl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VocAnalyses");
+                });
+
             modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
                 {
                     b.Property<int>("ProjectId")

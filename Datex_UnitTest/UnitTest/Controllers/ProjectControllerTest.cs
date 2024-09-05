@@ -27,9 +27,8 @@ namespace DATEX_ProjectDatabase.Tests
             _externalApiServiceMock = new Mock<IExternalApiService>();
             _controller = new ProjectController(_projectRepositoryMock.Object, _externalApiServiceMock.Object);
         }
-
         [Test]
-        public void GetProjectById_ProjectExists_ReturnsOkWithProject()
+        public async Task GetProjectById_ChecksWhethProjectExists_ReturnsOkWithProject()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
@@ -38,7 +37,7 @@ namespace DATEX_ProjectDatabase.Tests
                 .Returns(project);
 
             // Act
-            var result = _controller.GetProjectById(1);
+            var result = await _controller.GetProjectById(1);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -47,16 +46,14 @@ namespace DATEX_ProjectDatabase.Tests
             ClassicAssert.AreEqual(project, okResult.Value);
         }
 
-
-
         [Test]
-        public void AddProjectEditableFields_ValidProject_ReturnsCreatedAtAction()
+        public async Task AddProjectEditableFields_ValidProject_ReturnsCreatedAtAction()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
 
             // Act
-            var result = _controller.AddProjectEditableFields(project);
+            var result = await _controller.AddProjectEditableFields(project);
 
             // Assert
             var createdAtActionResult = result as CreatedAtActionResult;
@@ -70,7 +67,7 @@ namespace DATEX_ProjectDatabase.Tests
         }
 
         [Test]
-        public void UpdateProjectEditableFields_ProjectExists_ReturnsNoContent()
+        public async Task UpdateProjectEditableFields_ProjectExists_ReturnsNoContent()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "UpdatedProject" };
@@ -79,7 +76,7 @@ namespace DATEX_ProjectDatabase.Tests
                 .Returns(new Project { ProjectId = 1, ProjectName = "OldProject" });
 
             // Act
-            var result = _controller.UpdateProjectEditableFields(1, project);
+            var result = await _controller.UpdateProjectEditableFields(1, project);
 
             // Assert
             var noContentResult = result as NoContentResult;
@@ -90,7 +87,7 @@ namespace DATEX_ProjectDatabase.Tests
         }
 
         [Test]
-        public void UpdateProjectEditableFields_ProjectDoesNotExist_ReturnsNotFound()
+        public async Task UpdateProjectEditableFields_ProjectDoesNotExist_ReturnsNotFound()
         {
             // Arrange
             _projectRepositoryMock.Setup(r => r.GetProjectById(It.IsAny<int>()))
@@ -99,7 +96,7 @@ namespace DATEX_ProjectDatabase.Tests
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
 
             // Act
-            var result = _controller.UpdateProjectEditableFields(1, project);
+            var result = await _controller.UpdateProjectEditableFields(1, project);
 
             // Assert
             var notFoundResult = result as NotFoundObjectResult;
@@ -107,23 +104,21 @@ namespace DATEX_ProjectDatabase.Tests
             ClassicAssert.AreEqual(404, notFoundResult.StatusCode);
         }
 
- 
-
         [Test]
-        public void SearchProjects_ProjectsExist_ReturnsOkWithProjects()
+        public async Task SearchProjects_ProjectsExist_ReturnsOkWithProjects()
         {
             // Arrange
             var projects = new List<Project>
-            {
-                new Project { ProjectId = 1, ProjectName = "Project1" },
-                new Project { ProjectId = 2, ProjectName = "Project2" }
-            };
+    {
+        new Project { ProjectId = 1, ProjectName = "Project1" },
+        new Project { ProjectId = 2, ProjectName = "Project2" }
+    };
 
             _projectRepositoryMock.Setup(r => r.SearchProjects(It.IsAny<string>()))
                 .Returns(projects);
 
             // Act
-            var result = _controller.SearchProjects("Project");
+            var result = await _controller.SearchProjects("Project");
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -133,14 +128,14 @@ namespace DATEX_ProjectDatabase.Tests
         }
 
         [Test]
-        public void SearchProjects_NoProjectsFound_ReturnsNotFound()
+        public async Task SearchProjects_NoProjectsFound_ReturnsNotFound()
         {
             // Arrange
             _projectRepositoryMock.Setup(r => r.SearchProjects(It.IsAny<string>()))
                 .Returns(new List<Project>());
 
             // Act
-            var result = _controller.SearchProjects("NonExistentProject");
+            var result = await _controller.SearchProjects("NonExistentProject");
 
             // Assert
             var notFoundResult = result as NotFoundResult;

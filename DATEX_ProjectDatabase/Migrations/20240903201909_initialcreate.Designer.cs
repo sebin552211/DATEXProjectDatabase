@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240825090126_newTable")]
-    partial class newTable
+    [Migration("20240903201909_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,10 +69,12 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProjectId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
 
                     b.HasKey("ProjectManagerId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectManagers");
                 });
@@ -91,6 +93,40 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.VOCAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Communication")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerFocus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EngageService")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Knowledge")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanningAndControl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VocAnalyses");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
@@ -193,9 +229,25 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
+                {
+                    b.HasOne("DATEX_ProjectDatabase.Models.Project", "Project")
+                        .WithMany("ProjectManagers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
+                {
+                    b.Navigation("ProjectManagers");
                 });
 #pragma warning restore 612, 618
         }

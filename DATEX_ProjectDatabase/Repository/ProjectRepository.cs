@@ -2,6 +2,7 @@
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,34 @@ namespace DATEX_ProjectDatabase.Repository
         public ProjectRepository(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        // Asynchronous Methods
+
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        {
+            return await _context.Projects.ToListAsync();
+        }
+
+        public async Task<Project> GetProjectByIdAsync(int projectId)
+        {
+            return await _context.Projects.FindAsync(projectId);
+        }
+
+        public async Task<Project> GetProjectByCodeAsync(string projectCode)
+        {
+            return await _context.Projects
+                .FirstOrDefaultAsync(p => p.ProjectCode == projectCode);
+        }
+
+        public async Task<IEnumerable<Project>> GetProjectsWithVocEligibilityDateAsync(DateTime date)
+        {
+            var startOfDay = date.Date;
+            var endOfDay = startOfDay.AddDays(1).AddTicks(-1);
+
+            return await _context.Projects
+                .Where(p => p.VOCEligibilityDate >= startOfDay && p.VOCEligibilityDate <= endOfDay)
+                .ToListAsync();
         }
 
         public async Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes)
@@ -44,9 +73,6 @@ namespace DATEX_ProjectDatabase.Repository
                     existingProject.FeedbackStatus = project.FeedbackStatus;
                     existingProject.MailStatus = project.MailStatus;
 
-                    // Update other properties if needed
-
-
                     _context.Projects.Update(existingProject);
                 }
             }
@@ -54,121 +80,6 @@ namespace DATEX_ProjectDatabase.Repository
             await _context.SaveChangesAsync();
         }
 
-        // Existing methods for CRUD operations with the Project entity
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
-        {
-            return _context.Projects.ToList();
-        }
-
-        public Project GetProjectById(int projectId)
-        {
-            return _context.Projects.Find(projectId);
-        }
-
-        public void Add(Project project)
-        {
-            _context.Projects.Add(project);
-        }
-
-        public void Update(Project project)
-        {
-            _context.Entry(project).State = EntityState.Modified;
-        }
-
-        public void DeleteProject(int projectId)
-        {
-            var project = _context.Projects.Find(projectId);
-            if (project != null)
-            {
-                _context.Projects.Remove(project);
-            }
-        }
-
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
-        public async Task<Project> GetProjectByCodeAsync(string projectCode)
-        {
-            return await _context.Projects
-                .FirstOrDefaultAsync(p => p.ProjectCode == projectCode);
-        }
-        public IEnumerable<Project> SearchProjects(string query)
-        {
-            if (string.IsNullOrEmpty(query))
-            {
-                return _context.Projects.ToList();
-            }
-
-            return _context.Projects
-            .AsEnumerable() // Fetches data from the database
-            .Where(p => p.ProjectName.Contains(query, StringComparison.OrdinalIgnoreCase)) // Filters in-memory
-            .ToList();
-
-        }
-
-        public IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize)
-        {
-            return _context.Projects
-                           .OrderBy(p => p.ProjectId)
-                           .Skip((pageNumber - 1) * pageSize)
-                           .Take(pageSize)
-                           .ToList();
-        }
-
-        public int GetTotalProjectsCount()
-        {
-            return _context.Projects.Count();
-        }
-
-
-        public void AddProjectEditableFields(Project project)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateProjectEditableFields(int projectId, Project project)
-        {
-            var existingProject = _context.Projects.Find(projectId);
-
-            if (existingProject != null)
-            {
-                // Update only the editable fields
-                existingProject.SQA = project.SQA;
-                existingProject.ForecastedEndDate = project.ForecastedEndDate;
-                existingProject.VOCEligibilityDate = project.VOCEligibilityDate;
-                existingProject.ProjectDurationInDays = project.ProjectDurationInDays;
-                existingProject.ProjectDurationInMonths = project.ProjectDurationInMonths;
-                existingProject.ProjectType = project.ProjectType;
-                existingProject.Domain = project.Domain;
-                existingProject.DatabaseUsed = project.DatabaseUsed;
-                existingProject.CloudUsed = project.CloudUsed;
-                existingProject.FeedbackStatus = project.FeedbackStatus;
-                existingProject.MailStatus = project.MailStatus;
-            }
-        }
-
-        public Project GetProjectByCode(string projectCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Project> GetProjectByIdAsync(int projectId)
-        {
-            return await _context.Projects.FindAsync(projectId);
-        }
-
-
-        public async Task<IEnumerable<Project>> GetProjectsWithVocEligibilityDateAsync(DateTime date)
-        {
-            var startOfDay = date.Date;
-            var endOfDay = startOfDay.AddDays(1).AddTicks(-1);
-
-            return await _context.Projects
-                .Where(p => p.VOCEligibilityDate >= startOfDay && p.VOCEligibilityDate <= endOfDay)
-                .ToListAsync();
-        }
         public async Task UpdateProjectAsync(Project project)
         {
             _context.Projects.Update(project);
@@ -176,24 +87,24 @@ namespace DATEX_ProjectDatabase.Repository
         }
 
         public async Task<IEnumerable<Project>> GetFilteredProjectsAsync(
-          string du = null,
-          string duHead = null,
-          DateTime? projectStartDate = null,
-          DateTime? projectEndDate = null,
-          string projectManager = null,
-          string contractType = null,
-          string customerName = null,
-          string region = null,
-          string technology = null,
-          string status = null,
-          string sqa = null,
-          DateTime? vocEligibilityDate = null,
-          string projectType = null,
-          string domain = null,
-          string databaseUsed = null,
-          string cloudUsed = null,
-          string feedbackStatus = null,
-          string mailStatus = null)
+            string du = null,
+            string duHead = null,
+            DateTime? projectStartDate = null,
+            DateTime? projectEndDate = null,
+            string projectManager = null,
+            string contractType = null,
+            string customerName = null,
+            string region = null,
+            string technology = null,
+            string status = null,
+            string sqa = null,
+            DateTime? vocEligibilityDate = null,
+            string projectType = null,
+            string domain = null,
+            string databaseUsed = null,
+            string cloudUsed = null,
+            string feedbackStatus = null,
+            string mailStatus = null)
         {
             var query = _context.Projects.AsQueryable();
 
@@ -253,7 +164,100 @@ namespace DATEX_ProjectDatabase.Repository
 
             return await query.ToListAsync();
         }
-    
+
+        // Synchronous Methods
+
+        public Project GetProjectById(int projectId)
+        {
+            return _context.Projects.Find(projectId);
+        }
+
+        public Project GetProjectByCode(string projectCode)
+        {
+            return _context.Projects.FirstOrDefault(p => p.ProjectCode == projectCode);
+        }
+
+        public void Add(Project project)
+        {
+            _context.Projects.Add(project);
+        }
+
+        public void AddProjectEditableFields(Project project)
+        {
+            _context.Projects.Add(project);
+        }
+
+        public void Update(Project project)
+        {
+            _context.Entry(project).State = EntityState.Modified;
+        }
+
+        public void UpdateProjectEditableFields(int projectId, Project project)
+        {
+            var existingProject = _context.Projects.Find(projectId);
+
+            if (existingProject != null)
+            {
+                // Update only the editable fields
+                existingProject.SQA = project.SQA;
+                existingProject.ForecastedEndDate = project.ForecastedEndDate;
+                existingProject.VOCEligibilityDate = project.VOCEligibilityDate;
+                existingProject.ProjectDurationInDays = project.ProjectDurationInDays;
+                existingProject.ProjectDurationInMonths = project.ProjectDurationInMonths;
+                existingProject.ProjectType = project.ProjectType;
+                existingProject.Domain = project.Domain;
+                existingProject.DatabaseUsed = project.DatabaseUsed;
+                existingProject.CloudUsed = project.CloudUsed;
+                existingProject.FeedbackStatus = project.FeedbackStatus;
+                existingProject.MailStatus = project.MailStatus;
+            }
+        }
+
+        public void DeleteProject(int projectId)
+        {
+            var project = _context.Projects.Find(projectId);
+            if (project != null)
+            {
+                _context.Projects.Remove(project);
+            }
+        }
+
+        public IEnumerable<Project> SearchProjects(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return _context.Projects.ToList();
+            }
+
+            // Use EF.Functions.Like for case-insensitive search based on database collation
+            return _context.Projects
+                .Where(p => EF.Functions.Like(p.ProjectName, $"%{query}%"))
+                .ToList();
+        }
+
+        public IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize)
+        {
+            return _context.Projects
+                           .OrderBy(p => p.ProjectId)
+                           .Skip((pageNumber - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToList();
+        }
+
+        public int GetTotalProjectsCount()
+        {
+            return _context.Projects.Count();
+        }
+
+        public void Save()
+        {
+            _context.SaveChanges();
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
-    

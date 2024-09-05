@@ -5,6 +5,7 @@ using DATEX_ProjectDatabase.Service;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Repository;
 using DATEX_ProjectDatabase.SignalR;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddHangfireServer();
 
 builder.Services.AddHttpClient();
 
+ExcelPackage.LicenseContext = LicenseContext.Commercial;
+
 // Register your services and repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IProjectManagerRepository, ProjectManagerRepository>();
@@ -34,6 +37,8 @@ builder.Services.AddScoped<IProjectManagerService, ProjectManagerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ProjectJobService>();
 builder.Services.AddScoped<IExternalApiService, ExternalApiService>();
+builder.Services.AddScoped<IVocAnalysisRepository, VocAnalysisRepository>();
+builder.Services.AddScoped<VocAnalysisService>();
 
 // Add SignalR services
 builder.Services.AddSignalR();
@@ -57,6 +62,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();

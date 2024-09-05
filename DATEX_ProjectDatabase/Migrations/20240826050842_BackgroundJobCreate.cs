@@ -5,7 +5,7 @@
 namespace DATEX_ProjectDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class projectmanager : Migration
+    public partial class BackgroundJobCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

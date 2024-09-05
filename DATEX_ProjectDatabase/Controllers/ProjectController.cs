@@ -271,6 +271,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         existingProject.CloudUsed = row.CloudUsed;
                         existingProject.FeedbackStatus = row.FeedbackStatus;
                         existingProject.MailStatus = row.MailStatus;
+                        existingProject.Technology = row.Technology;
                     }
 
                     return existingProject;

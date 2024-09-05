@@ -46,7 +46,7 @@ namespace DATEX_ProjectDatabase.Service
                         if (emailSent)
                         {
                             project.MailStatus = "Sent";
-                            await _projectRepository.UpdateProjectAsync(project);
+                            await _projectRepository.UpdateProjectsAsync(projects);
 
                             await _hubContext.Clients.All.SendAsync("MailStatusUpdated");
                         }

@@ -164,7 +164,7 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("MailStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfResources")
+                    b.Property<int?>("NumberOfResources")
                         .HasColumnType("int");
 
                     b.Property<string>("ProjectCode")

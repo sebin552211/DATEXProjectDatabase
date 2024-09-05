@@ -24,28 +24,29 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
             _controller = new ProjectManagerController(_projectManagerServiceMock.Object);
         }
 
-        /*        [Test]
-                public async Task PostProjectManager_ValidData_ReturnsCreatedAtAction()
-                {
-                    // Arrange
-                    var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
-                    _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
-                        .Returns(Task.CompletedTask);
+        [Test]
+        public async Task PostProjectManager_ValidData_ReturnsCreatedAtAction()
+        {
+            // Arrange
+            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
+            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
+                .ReturnsAsync(projectManager);  // Return Task<ProjectManagers>
 
-                    // Act
-                    var result = await _controller.PostProjectManager(projectManager);
+            // Act
+            var result = await _controller.PostProjectManager(projectManager);
 
-                    // Assert
-                    var createdAtActionResult = result as CreatedAtActionResult;
-                    ClassicAssert.IsNotNull(createdAtActionResult);
-                    ClassicAssert.AreEqual(201, createdAtActionResult.StatusCode);
-                    ClassicAssert.AreEqual(nameof(ProjectManagerController.GetProjectManager), createdAtActionResult.ActionName);
-                    ClassicAssert.AreEqual(projectManager.ProjectId, createdAtActionResult.RouteValues["id"]);
-                    ClassicAssert.AreEqual(projectManager, createdAtActionResult.Value);
-                }*/
+            // Assert
+            var createdAtActionResult = result as CreatedAtActionResult;
+            ClassicAssert.IsNotNull(createdAtActionResult);
+            ClassicAssert.AreEqual(201, createdAtActionResult.StatusCode);
+            ClassicAssert.AreEqual(nameof(ProjectManagerController.GetProjectManager), createdAtActionResult.ActionName);
+            ClassicAssert.AreEqual(projectManager.ProjectId, createdAtActionResult.RouteValues["id"]);
+            ClassicAssert.AreEqual(projectManager, createdAtActionResult.Value);
+        }
+
 
         [Test]
-        public async Task PostProjectManager_NullData_ReturnsBadRequest()
+        public async Task PostProjectManager_ChecksNullData()
         {
             // Act
             var result = await _controller.PostProjectManager(null);
@@ -56,26 +57,26 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
             ClassicAssert.AreEqual(400, badRequestResult.StatusCode);
             ClassicAssert.AreEqual("Project manager data is required.", badRequestResult.Value);
         }
+        [Test]
+        public async Task PutProjectManager_ValidData_ReturnsNoContent()
+        {
+            // Arrange
+            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
+            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
+                .ReturnsAsync(projectManager);  // Return Task<ProjectManagers>
 
-        /*        [Test]
-                public async Task PutProjectManager_ValidData_ReturnsNoContent()
-                {
-                    // Arrange
-                    var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
-                    _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
-                        .Returns(Task.CompletedTask);
+            // Act
+            var result = await _controller.PutProjectManager(projectManager.ProjectId, projectManager);
 
-                    // Act
-                    var result = await _controller.PutProjectManager(projectManager.ProjectId, projectManager);
+            // Assert
+            var noContentResult = result as NoContentResult;
+            ClassicAssert.IsNotNull(noContentResult);
+            ClassicAssert.AreEqual(204, noContentResult.StatusCode);
+        }
 
-                    // Assert
-                    var noContentResult = result as NoContentResult;
-                    ClassicAssert.IsNotNull(noContentResult);
-                    ClassicAssert.AreEqual(204, noContentResult.StatusCode);
-                }*/
 
         [Test]
-        public async Task PutProjectManager_MismatchedProjectId_ReturnsBadRequest()
+        public async Task PutProjectManager_ChecksMismatchedProjectId()
         {
             // Arrange
             var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
@@ -91,7 +92,7 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         }
 
         [Test]
-        public async Task PutProjectManager_NullData_ReturnsBadRequest()
+        public async Task PutProjectManager_ChecksNullData()
         {
             // Act
             var result = await _controller.PutProjectManager(1, null);

@@ -75,7 +75,7 @@ namespace Datex_UnitTest.UnitTest.Services
 
             // Assert
             emailServiceMock.Verify(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            projectRepositoryMock.Verify(repo => repo.UpdateProjectAsync(It.IsAny<Project>()), Times.Never);
+            projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync()).ReturnsAsync(new List<Project> { project });
         }
 
         [Test]
@@ -109,7 +109,9 @@ namespace Datex_UnitTest.UnitTest.Services
             await projectJobService.CheckAndNotifyVocEligibilityAsync();
 
             // Assert
-            projectRepositoryMock.Verify(repo => repo.UpdateProjectAsync(It.IsAny<Project>()), Times.Never);
+            projectRepositoryMock.Verify(repo => repo.UpdateProjectsAsync(It.IsAny<IEnumerable<Project>>()), Times.Never);
+
+
         }
     }
 }

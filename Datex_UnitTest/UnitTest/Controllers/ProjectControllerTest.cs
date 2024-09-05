@@ -1,4 +1,4 @@
-﻿/*using DATEX_ProjectDatabase.Controllers;
+﻿using DATEX_ProjectDatabase.Controllers;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Models;
 using Moq;
@@ -28,13 +28,13 @@ namespace DATEX_ProjectDatabase.Tests
             _controller = new ProjectController(_projectRepositoryMock.Object, _externalApiServiceMock.Object);
         }
         [Test]
-        public async Task GetProjectById_ChecksWhethProjectExists_ReturnsOkWithProject()
+        public async Task GetProjectById_ChecksWhetherProjectExistsOrNot()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
 
-            _projectRepositoryMock.Setup(r => r.GetProjectById(It.IsAny<int>()))
-                .Returns(project);
+            _projectRepositoryMock.Setup(r => r.GetProjectByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(project);
 
             // Act
             var result = await _controller.GetProjectById(1);
@@ -47,7 +47,7 @@ namespace DATEX_ProjectDatabase.Tests
         }
 
         [Test]
-        public async Task AddProjectEditableFields_ValidProject_ReturnsCreatedAtAction()
+        public async Task AddProjectEditableFields_ChecksforValidProject()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
@@ -63,17 +63,17 @@ namespace DATEX_ProjectDatabase.Tests
             ClassicAssert.AreEqual(project.ProjectId, createdAtActionResult.RouteValues["id"]);
             ClassicAssert.AreEqual(project, createdAtActionResult.Value);
             _projectRepositoryMock.Verify(r => r.AddProjectEditableFields(project), Times.Once);
-            _projectRepositoryMock.Verify(r => r.Save(), Times.Once);
+            _projectRepositoryMock.Verify(r => r.SaveAsync(), Times.Once);
         }
 
         [Test]
-        public async Task UpdateProjectEditableFields_ProjectExists_ReturnsNoContent()
+        public async Task UpdateProjectEditableFields_ChecksIfProjectExists()
         {
             // Arrange
             var project = new Project { ProjectId = 1, ProjectName = "UpdatedProject" };
 
-            _projectRepositoryMock.Setup(r => r.GetProjectById(It.IsAny<int>()))
-                .Returns(new Project { ProjectId = 1, ProjectName = "OldProject" });
+            _projectRepositoryMock.Setup(r => r.GetProjectByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Project { ProjectId = 1, ProjectName = "OldProject" });
 
             // Act
             var result = await _controller.UpdateProjectEditableFields(1, project);
@@ -83,29 +83,30 @@ namespace DATEX_ProjectDatabase.Tests
             ClassicAssert.IsNotNull(noContentResult);
             ClassicAssert.AreEqual(204, noContentResult.StatusCode);
             _projectRepositoryMock.Verify(r => r.UpdateProjectEditableFields(1, project), Times.Once);
-            _projectRepositoryMock.Verify(r => r.Save(), Times.Once);
+            _projectRepositoryMock.Verify(r => r.SaveAsync(), Times.Once);
         }
 
         [Test]
-        public async Task UpdateProjectEditableFields_ProjectDoesNotExist_ReturnsNotFound()
+        public async Task UpdateProjectEditableFields_ChecksIfProjectDoesNotExist()
         {
             // Arrange
-            _projectRepositoryMock.Setup(r => r.GetProjectById(It.IsAny<int>()))
-                .Returns<Project>(null);
+            _projectRepositoryMock.Setup(r => r.GetProjectByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync((Project)null);  // Return null as Task<Project>
 
             var project = new Project { ProjectId = 1, ProjectName = "Project1" };
 
             // Act
-            var result = await _controller.UpdateProjectEditableFields(1, project);
+            var result = await _controller.UpdateProjectEditableFields(56, project);
 
             // Assert
             var notFoundResult = result as NotFoundObjectResult;
-            ClassicAssert.IsNotNull(notFoundResult);
-            ClassicAssert.AreEqual(404, notFoundResult.StatusCode);
+            ClassicAssert.IsNotNull(notFoundResult);  // Ensure NotFoundObjectResult is returned
+            ClassicAssert.AreEqual(404, notFoundResult.StatusCode);  // Check that status code is 404
         }
 
+
         [Test]
-        public async Task SearchProjects_ProjectsExist_ReturnsOkWithProjects()
+        public async Task SearchProjects_ChecksProjectsExist()
         {
             // Arrange
             var projects = new List<Project>
@@ -128,7 +129,7 @@ namespace DATEX_ProjectDatabase.Tests
         }
 
         [Test]
-        public async Task SearchProjects_NoProjectsFound_ReturnsNotFound()
+        public async Task SearchProjects_NoProjectsFound()
         {
             // Arrange
             _projectRepositoryMock.Setup(r => r.SearchProjects(It.IsAny<string>()))
@@ -145,4 +146,3 @@ namespace DATEX_ProjectDatabase.Tests
 
     }
 }
-*/

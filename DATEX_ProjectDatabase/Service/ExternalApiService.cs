@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
 
-namespace DATEX_ProjectDatabase.Repository
+namespace DATEX_ProjectDatabase.Service
 {
     public class ExternalApiService : IExternalApiService
     {
@@ -13,9 +12,10 @@ namespace DATEX_ProjectDatabase.Repository
             _httpClient = httpClient;
         }
 
+        /*api link*/
         public async Task<List<ProjectDto>> GetProjectsFromExternalApiAsync()
         {
-            var response = await _httpClient.GetAsync("http://localhost:3000/projects");
+            var response = await _httpClient.GetAsync("http://localhost:4000/projects");
 
             if (!response.IsSuccessStatusCode)
             {

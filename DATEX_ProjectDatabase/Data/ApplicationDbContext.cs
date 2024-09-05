@@ -9,6 +9,8 @@ namespace DATEX_ProjectDatabase.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectManagers> ProjectManagers { get; set; }
+        public DbSet<VOCAnalysis> VocAnalyses { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -31,6 +33,17 @@ namespace DATEX_ProjectDatabase.Data
                 .HasOne(e => e.Role)
                 .WithMany(r => r.Employees)
                 .HasForeignKey(e => e.RoleId);
+
+            modelBuilder.Entity<Project>()
+                .Property(p => p.NumberOfResources)
+                .HasDefaultValue(null)
+                .IsRequired(false);
+
+
+
+
         }
+
+
     }
 }

@@ -1,6 +1,11 @@
 ﻿using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Models;
+using DATEX_ProjectDatabase.Service;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DATEX_ProjectDatabase.Controllers
 {
@@ -17,118 +22,348 @@ namespace DATEX_ProjectDatabase.Controllers
             _externalApiService = externalApiService;
         }
 
+        // Sync with External API
         [HttpGet("sync-external")]
         public async Task<IActionResult> SyncWithExternalApi()
         {
-            var externalProjects = await _externalApiService.GetProjectsFromExternalApiAsync();
-
-            foreach (var externalProject in externalProjects)
+            try
             {
-                var project = new Project
+                var externalProjects = await _externalApiService.GetProjectsFromExternalApiAsync();
+
+                foreach (var externalProject in externalProjects)
                 {
-                    ProjectCode = externalProject.ProjectCode,
-                    ProjectName = externalProject.ProjectName,
-                    DU = externalProject.DU,
-                    DUHead = externalProject.DUHead,
-                    ProjectStartDate = externalProject.ProjectStartDate,
-                    ProjectEndDate = externalProject.ProjectEndDate,
-                    ProjectManager = externalProject.ProjectManager,
-                    ContractType = externalProject.ContractType,
-                    NumberOfResources = externalProject.NumberOfResources,
-                    CustomerName = externalProject.CustomerName,
-                    Region = externalProject.Region,
-                    Technology = externalProject.Technology,
-                    Status = externalProject.Status
+                    var project = new Project
+                    {
+                        ProjectCode = externalProject.ProjectCode,
+                        ProjectName = externalProject.ProjectName,
+                        DU = externalProject.DU,
+                        DUHead = externalProject.DUHead,
+                        ProjectStartDate = externalProject.ProjectStartDate,
+                        ProjectEndDate = externalProject.ProjectEndDate,
+                        ProjectManager = externalProject.ProjectManager,
+                        ContractType = externalProject.ContractType,
+                        NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
+                        CustomerName = externalProject.CustomerName,
+                        Region = externalProject.Region,
+                        Technology = externalProject.Technology,
+                        Status = externalProject.Status
+                    };
+
+                    // Use asynchronous method to get project by code
+                    var existingProject = await _projectRepository.GetProjectByCodeAsync(externalProject.ProjectCode);
+
+                    if (existingProject != null)
+                    {
+                        // Update existing project with external API data
+                        existingProject.ProjectName = externalProject.ProjectName;
+                        existingProject.DU = externalProject.DU;
+                        existingProject.DUHead = externalProject.DUHead;
+                        existingProject.ProjectStartDate = externalProject.ProjectStartDate;
+                        existingProject.ProjectEndDate = externalProject.ProjectEndDate;
+                        existingProject.ProjectManager = externalProject.ProjectManager;
+                        existingProject.ContractType = externalProject.ContractType;
+                        existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
+                        existingProject.CustomerName = externalProject.CustomerName;
+                        existingProject.Region = externalProject.Region;
+                        existingProject.Technology = externalProject.Technology;
+                        existingProject.Status = externalProject.Status;
+
+                        _projectRepository.Update(existingProject);
+                    }
+                    else
+                    {
+                        _projectRepository.Add(project);
+                    }
+                }
+
+                // Use asynchronous SaveChanges
+                await _projectRepository.SaveAsync();
+
+                return Ok(new { message = "Projects synced with external API" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Other actions remain the same...
+
+        // Get All Projects
+        [HttpGet]
+        public async Task<IActionResult> GetAllProjects()
+        {
+            try
+            {
+                var projects = await _projectRepository.GetAllProjectsAsync();
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Get Project by ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProjectById(int id)
+        {
+            try
+            {
+                var project = await _projectRepository.GetProjectByIdAsync(id);
+                if (project == null)
+                {
+                    return NotFound(new { message = "Project not found" });
+                }
+                return Ok(project);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Add Project with Editable Fields
+        [HttpPost("editable")]
+        public async Task<IActionResult> AddProjectEditableFields([FromBody] Project project)
+        {
+            try
+            {
+                _projectRepository.AddProjectEditableFields(project);
+                await _projectRepository.SaveAsync();
+                return CreatedAtAction("GetProjectById", new { id = project.ProjectId }, project);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Update Project with Editable Fields
+        [HttpPut("editable/{id}")]
+        public async Task<IActionResult> UpdateProjectEditableFields(int id, [FromBody] Project project)
+        {
+            try
+            {
+                var existingProject = await _projectRepository.GetProjectByIdAsync(id);
+
+                if (existingProject == null)
+                {
+                    return NotFound(new { message = "Project not found" });
+                }
+
+                _projectRepository.UpdateProjectEditableFields(id, project);
+                await _projectRepository.SaveAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Delete Project
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            try
+            {
+                var project = await _projectRepository.GetProjectByIdAsync(id);
+                if (project == null)
+                {
+                    return NotFound(new { message = "Project not found" });
+                }
+
+                _projectRepository.DeleteProject(id);
+                await _projectRepository.SaveAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Search Projects
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProjects(string query)
+        {
+            try
+            {
+                var projects = await Task.Run(() => _projectRepository.SearchProjects(query));
+
+                if (projects == null || !projects.Any())
+                {
+                    return NotFound();
+                }
+
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        // Get Paged Projects
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedProjects(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var pagedProjects = await Task.Run(() => _projectRepository.GetPagedProjects(pageNumber, pageSize));
+                var totalProjects = await Task.Run(() => _projectRepository.GetTotalProjectsCount());
+
+                var response = new
+                {
+                    TotalProjects = totalProjects,
+                    Projects = pagedProjects
                 };
 
-                // Check if the project already exists in the database by ProjectCode or other unique identifier
-                var existingProject = _projectRepository.GetProjectByCode(externalProject.ProjectCode);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
 
-                if (existingProject != null)
+        // Update Projects from Excel Data
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateProjects([FromBody] List<Project> excelRows)
+        {
+            if (excelRows == null || !excelRows.Any())
+            {
+                return BadRequest(new { message = "No data provided" });
+            }
+
+            try
+            {
+                var projectCodes = excelRows.Select(row => row.ProjectCode).ToList();
+                var existingProjects = await _projectRepository.GetProjectsByCodesAsync(projectCodes);
+
+                if (existingProjects == null || !existingProjects.Any())
                 {
-                    // Update existing project with external API data (only non-editable fields)
-                    existingProject.ProjectName = externalProject.ProjectName;
-                    existingProject.DU = externalProject.DU;
-                    existingProject.DUHead = externalProject.DUHead;
-                    existingProject.ProjectStartDate = externalProject.ProjectStartDate;
-                    existingProject.ProjectEndDate = externalProject.ProjectEndDate;
-                    existingProject.ProjectManager = externalProject.ProjectManager;
-                    existingProject.ContractType = externalProject.ContractType;
-                    existingProject.NumberOfResources = externalProject.NumberOfResources;
-                    existingProject.CustomerName = externalProject.CustomerName;
-                    existingProject.Region = externalProject.Region;
-                    existingProject.Technology = externalProject.Technology;
-                    existingProject.Status = externalProject.Status;
-
-                    _projectRepository.Update(existingProject);
+                    return BadRequest(new { message = "No existing projects found for the provided codes" });
                 }
-                else
+
+                var updatedProjects = excelRows.Select(row =>
                 {
-                    _projectRepository.Add(project);
+                    var existingProject = existingProjects.FirstOrDefault(p => p.ProjectCode == row.ProjectCode);
+
+                    if (existingProject != null)
+                    {
+                        // Map ExcelRow to existing project
+                        existingProject.SQA = row.SQA;
+                        existingProject.ForecastedEndDate = row.ForecastedEndDate;
+                        existingProject.VOCEligibilityDate = row.VOCEligibilityDate;
+                        existingProject.ProjectType = row.ProjectType;
+                        existingProject.Domain = row.Domain;
+                        existingProject.DatabaseUsed = row.DatabaseUsed;
+                        existingProject.CloudUsed = row.CloudUsed;
+                        existingProject.FeedbackStatus = row.FeedbackStatus;
+                        existingProject.MailStatus = row.MailStatus;
+                        existingProject.Technology = row.Technology;
+                        // Add any other fields that need updating
+                    }
+
+                    return existingProject;
+                }).ToList();
+
+                await _projectRepository.UpdateProjectsAsync(updatedProjects);
+
+                return Ok(new { message = "Projects updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("filter")]
+
+        public async Task<IActionResult> GetFilteredProjects(
+     [FromQuery] string du = null,
+     [FromQuery] string duHead = null,
+     [FromQuery] DateTime? projectStartDate = null,
+     [FromQuery] DateTime? projectEndDate = null,
+     [FromQuery] string projectManager = null,
+     [FromQuery] string contractType = null,
+     [FromQuery] string customerName = null,
+     [FromQuery] string region = null,
+     [FromQuery] string technology = null,
+     [FromQuery] string status = null,
+     [FromQuery] string sqa = null,
+     [FromQuery] DateTime? vocEligibilityDate = null,
+     [FromQuery] string projectType = null,
+     [FromQuery] string domain = null,
+     [FromQuery] string databaseUsed = null,
+     [FromQuery] string cloudUsed = null,
+     [FromQuery] string feedbackStatus = null,
+     [FromQuery] string mailStatus = null)
+        {
+            try
+            {
+                var projects = await _projectRepository.GetFilteredProjectsAsync(
+                    du,
+                    duHead,
+                    projectStartDate,
+                    projectEndDate,
+                    projectManager,
+                    contractType,
+                    customerName,
+                    region,
+                    technology,
+                    status,
+                    sqa,
+                    vocEligibilityDate,
+                    projectType,
+                    domain,
+                    databaseUsed,
+                    cloudUsed,
+                    feedbackStatus,
+                    mailStatus);
+
+                if (projects == null || !projects.Any())
+                {
+                    return NotFound(new { message = "No projects found matching the criteria" });
                 }
+
+                return Ok(projects);
             }
-
-            _projectRepository.Save();
-
-            return Ok("Projects synced with external API");
-        }
-
-        [HttpGet]
-        public IActionResult GetAllProjects()
-        {
-            var projects = _projectRepository.GetAllProjects();
-            return Ok(projects);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetProjectById(int id)
-        {
-            var project = _projectRepository.GetProjectById(id);
-            if (project == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
-            return Ok(project);
         }
-
-        [HttpPost("editable")]
-        public IActionResult AddProjectEditableFields([FromBody] Project project)
-        {
-            _projectRepository.AddProjectEditableFields(project);
-            _projectRepository.Save();
-            return CreatedAtAction("GetProjectById", new { id = project.ProjectId }, project);
-        }
-
-        [HttpPut("editable/{id}")]
-        public IActionResult UpdateProjectEditableFields(int id, [FromBody] Project project)
-        {
-            var existingProject = _projectRepository.GetProjectById(id);
-
-            if (existingProject == null)
-            {
-                return NotFound();
-            }
-
-            _projectRepository.UpdateProjectEditableFields(id, project);
-            _projectRepository.Save();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteProject(int id)
-        {
-            var project = _projectRepository.GetProjectById(id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            _projectRepository.DeleteProject(id);
-            _projectRepository.Save();
-
-            return NoContent();
-        }
-
     }
 }

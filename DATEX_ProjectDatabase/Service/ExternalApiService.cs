@@ -15,7 +15,7 @@ namespace DATEX_ProjectDatabase.Service
         /*api link*/
         public async Task<List<ProjectDto>> GetProjectsFromExternalApiAsync()
         {
-            var response = await _httpClient.GetAsync("http://localhost:3000/projects");
+            var response = await _httpClient.GetAsync("http://localhost:4000/projects");
 
             if (!response.IsSuccessStatusCode)
             {

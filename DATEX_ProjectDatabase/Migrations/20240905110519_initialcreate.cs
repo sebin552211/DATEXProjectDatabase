@@ -25,7 +25,7 @@ namespace DATEX_ProjectDatabase.Migrations
                     ProjectEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProjectManager = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContractType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NumberOfResources = table.Column<int>(type: "int", nullable: false),
+                    NumberOfResources = table.Column<int>(type: "int", nullable: true),
                     CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Region = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Technology = table.Column<string>(type: "nvarchar(max)", nullable: true),

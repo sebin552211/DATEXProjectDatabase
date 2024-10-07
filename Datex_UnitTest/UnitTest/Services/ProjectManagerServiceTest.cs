@@ -28,7 +28,7 @@ namespace Datex_UnitTest.UnitTest.Services
         // Test cases go here
 
         [Test]
-        public void UpsertProjectManagerAsync_ProjectNotFound_ThrowsArgumentException()
+        public async Task UpsertProjectManagerAsync_ProjectNotFound_ThrowsArgumentException()
         {
             // Arrange
             var projectId = 1;

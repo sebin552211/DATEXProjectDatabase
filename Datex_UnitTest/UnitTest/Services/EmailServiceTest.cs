@@ -21,7 +21,7 @@ namespace Datex_UnitTest.UnitTest.Services
         private EmailService _emailService;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
             // Mock the SmtpClient and configure environment variables
             _smtpClientMock = new Mock<SmtpClient>();
@@ -36,7 +36,7 @@ namespace Datex_UnitTest.UnitTest.Services
         }
 
         [Test]
-        public void EmailService_Constructor_EnvironmentVariablesLoadedCorrectly()
+        public async Task EmailService_Constructor_EnvironmentVariablesLoadedCorrectly()
         {
             // Arrange & Act
             var emailService = new EmailService();

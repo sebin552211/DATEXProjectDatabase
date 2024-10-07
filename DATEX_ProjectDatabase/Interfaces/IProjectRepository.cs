@@ -1,5 +1,7 @@
 ﻿using DATEX_ProjectDatabase.Models;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DATEX_ProjectDatabase.Interfaces
 {
@@ -8,10 +10,17 @@ namespace DATEX_ProjectDatabase.Interfaces
         Task<IEnumerable<Project>> GetAllProjectsAsync();
         Task<Project> GetProjectByIdAsync(int projectId);
         Task<Project> GetProjectByCodeAsync(string projectCode);
-        Task<IEnumerable<Project>> GetProjectsWithVocEligibilityDateAsync(DateTime date);
         Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes);
         Task UpdateProjectsAsync(IEnumerable<Project> projects);
-        Task UpdateProjectAsync(Project project);
+        Task SaveAsync();
+        void Add(Project project);
+        void Update(Project project);
+        void DeleteProject(int projectId);
+        IEnumerable<Project> SearchProjects(string query);
+        IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize);
+        int GetTotalProjectsCount();
+        void AddProjectEditableFields(Project project);
+        void UpdateProjectEditableFields(int id, Project project);
         Task<IEnumerable<Project>> GetFilteredProjectsAsync(
             string du = null,
             string duHead = null,
@@ -31,21 +40,5 @@ namespace DATEX_ProjectDatabase.Interfaces
             string cloudUsed = null,
             string feedbackStatus = null,
             string mailStatus = null);
-
-        // Synchronous methods (if needed)
-        Project GetProjectById(int projectId);
-        Project GetProjectByCode(string projectCode);
-        void Add(Project project);
-        void AddProjectEditableFields(Project project);
-        void Update(Project project);
-        void UpdateProjectEditableFields(int projectId, Project project);
-        void DeleteProject(int projectId);
-        IEnumerable<Project> SearchProjects(string query);
-        IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize);
-        int GetTotalProjectsCount();
-
-        void Save();
-        Task SaveAsync(); // Add this line
     }
-
 }

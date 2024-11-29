@@ -167,13 +167,14 @@ namespace DATEX_ProjectDatabase.Controllers
                 _projectRepository.UpdateProjectEditableFields(id, project);
                 await _projectRepository.SaveAsync();
 
-                return NoContent();
+                // Fetch the updated project to return in the response
+                var updatedProject = await _projectRepository.GetProjectByIdAsync(id);
+
+                return Ok(updatedProject);
             }
             catch (Exception ex)
             {
                 // Log the exception
-                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
-                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -366,4 +367,6 @@ namespace DATEX_ProjectDatabase.Controllers
             }
         }
     }
+
+
 }

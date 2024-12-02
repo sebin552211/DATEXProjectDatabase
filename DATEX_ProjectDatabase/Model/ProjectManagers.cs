@@ -9,13 +9,12 @@ namespace DATEX_ProjectDatabase.Model
 
         [Key]
         public int ProjectManagerId { get; set; }  // Primary Key
-        public string Name { get; set; }
         public string Email { get; set; }
 
-        // Foreign key reference to Project based on ProjectCode
-     
-        public int ProjectId { get; set; }
-        public Project Project { get; set; }
+        // Foreign key reference to Project based on ProjectName
+
+        public string Name { get; set; }
+        public ICollection<Project> Projects { get; set; }
 
     }
 }

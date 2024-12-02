@@ -6,6 +6,7 @@ using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Repository;
 using DATEX_ProjectDatabase.SignalR;
 using OfficeOpenXml;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -78,10 +80,10 @@ app.MapHub<MailStatusHub>("/mailStatusHub");
 app.UseHangfireDashboard();
 
 // Set up a recurring job
-/*RecurringJob.AddOrUpdate<ProjectJobService>(
+RecurringJob.AddOrUpdate<ProjectJobService>(
     "check-voc-eligibility",
     service => service.CheckAndNotifyVocEligibilityAsync(),
-    Cron.Daily);*/
+    Cron.Daily);
 
 // Run the application
 app.Run();

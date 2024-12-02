@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240904121618_InitialCreateWithExpData")]
-    partial class InitialCreateWithExpData
+    [Migration("20241115050926_initial Create")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -183,7 +183,7 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("int")
                         .HasComputedColumnSql("DATEDIFF(month, ProjectStartDate, ProjectEndDate)");
 
-                    b.Property<DateTime>("ProjectEndDate")
+                    b.Property<DateTime?>("ProjectEndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ProjectManager")
@@ -212,6 +212,12 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.Property<DateTime?>("VOCEligibilityDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("VOCFeedbackReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VocRemarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProjectId");
 

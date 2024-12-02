@@ -42,7 +42,7 @@ namespace Datex_UnitTest.UnitTest.Services
             await projectJobService.CheckAndNotifyVocEligibilityAsync();
 
             // Assert
-            projectManagerRepositoryMock.Verify(repo => repo.GetProjectManagerByProjectIdAsync(It.IsAny<int>()), Times.Never);
+            projectManagerRepositoryMock.Verify(repo => repo.GetProjectManagerByPMNameAsync(It.IsAny<string>()), Times.Never);
             emailServiceMock.Verify(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
@@ -60,7 +60,7 @@ namespace Datex_UnitTest.UnitTest.Services
 
             projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync())
                 .ReturnsAsync(new List<Project> { project });
-            projectManagerRepositoryMock.Setup(repo => repo.GetProjectManagerByProjectIdAsync(project.ProjectId))
+            projectManagerRepositoryMock.Setup(repo => repo.GetProjectManagerByPMNameAsync(project.ProjectManager))
                 .ReturnsAsync((ProjectManagers)null);
 
             var projectJobService = new ProjectJobService(
@@ -93,7 +93,7 @@ namespace Datex_UnitTest.UnitTest.Services
 
             projectRepositoryMock.Setup(repo => repo.GetAllProjectsAsync())
                 .ReturnsAsync(new List<Project> { project });
-            projectManagerRepositoryMock.Setup(repo => repo.GetProjectManagerByProjectIdAsync(project.ProjectId))
+            projectManagerRepositoryMock.Setup(repo => repo.GetProjectManagerByPMNameAsync(project.ProjectManager))
                 .ReturnsAsync(projectManager);
             emailServiceMock.Setup(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(false);

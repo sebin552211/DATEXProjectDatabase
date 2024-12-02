@@ -4,6 +4,7 @@ using DATEX_ProjectDatabase.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241122071455_PM rectification")]
+    partial class PMrectification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,10 +67,14 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
 
                     b.HasKey("ProjectManagerId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectManagers");
                 });
@@ -186,7 +193,7 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ProjectManager")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProjectName")
                         .HasColumnType("nvarchar(max)");
@@ -220,8 +227,6 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.HasKey("ProjectId");
 
-                    b.HasIndex("ProjectManager");
-
                     b.ToTable("Projects");
                 });
 
@@ -236,25 +241,23 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
-                {
-                    b.HasOne("DATEX_ProjectDatabase.Model.ProjectManagers", "ProjectManagerDetails")
-                        .WithMany("Projects")
-                        .HasForeignKey("ProjectManager")
-                        .HasPrincipalKey("Name")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ProjectManagerDetails");
-                });
-
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
                 {
-                    b.Navigation("Projects");
+                    b.HasOne("DATEX_ProjectDatabase.Models.Project", "Project")
+                        .WithMany("ProjectManagers")
+                        .HasForeignKey("ProjectId");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
+                {
+                    b.Navigation("ProjectManagers");
                 });
 #pragma warning restore 612, 618
         }

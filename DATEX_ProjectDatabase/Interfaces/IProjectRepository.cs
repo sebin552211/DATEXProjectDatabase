@@ -1,4 +1,8 @@
-﻿using DATEX_ProjectDatabase.Models;
+﻿using DATEX_ProjectDatabase.Model;
+using DATEX_ProjectDatabase.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
+using Org.BouncyCastle.Security;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,6 +20,17 @@ public interface IProjectRepository
     IEnumerable<Project> SearchProjects(string query);
     IEnumerable<Project> GetPagedProjects(int pageNumber, int pageSize);
     int GetTotalProjectsCount();
+    /*Task<Project> GetVOCFeedbackReceivedDateByProjectIdAsync(int projectId);*/
+    Task<Project> AddPMIntitiateDate(int projectId, DateTime? PMInitiateDate);
+
+    Task<Project> DeletePMIntitiateDate(int projectId);
+    Task<Project> DeleteVOCFeedbackReceivedDateByProjectIdAsync(int projectId);
+    Task AddVOCFeedbackReceivedDateAsync(int projectId, DateTime? vocFeedbackDate);//DateTime
+    Task<IEnumerable<Project>> GetProjectsByDateRangeAsync(DateTime startDate, DateTime endDate);
+    public Task<Project> AddProjectRemarksAsync(int projectId, string remarks);
+    Task<Project> UpdateProjectRemarksAsync(int projectId, string VocRemark);
+    Task<Project> DeleteProjectRemarksAsync(int projectId);
+    Task<Project> GetProjectsByPMNameAsync(string PMName);
     void AddProjectEditableFields(Project project);
     void UpdateProjectEditableFields(int id, Project project);
 

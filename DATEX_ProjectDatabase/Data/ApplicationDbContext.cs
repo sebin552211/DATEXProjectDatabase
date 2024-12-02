@@ -1,6 +1,8 @@
 ﻿using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Hosting;
 
 namespace DATEX_ProjectDatabase.Data
 {
@@ -39,11 +41,12 @@ namespace DATEX_ProjectDatabase.Data
                 .HasDefaultValue(null)
                 .IsRequired(false);
 
-
-
-
+            modelBuilder.Entity<Project>()
+        .HasOne(p => p.ProjectManagerDetails) // Define one-to-one relationship
+        .WithMany(pm => pm.Projects) // Each manager can have multiple projects
+        .HasForeignKey(p => p.ProjectManager) // Foreign key in Project
+        .HasPrincipalKey(pm => pm.Name) // Principal key in ProjectManagers
+        .OnDelete(DeleteBehavior.Restrict);
         }
-
-
     }
 }

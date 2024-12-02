@@ -1,5 +1,7 @@
-﻿using DATEX_ProjectDatabase.Interfaces;
+﻿using DATEX_ProjectDatabase.Data;
+using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace DATEX_ProjectDatabase.Service
@@ -14,23 +16,36 @@ namespace DATEX_ProjectDatabase.Service
             _projectManagerRepository = projectManagerRepository;
             _projectRepository = projectRepository;
         }
-
-        public async Task<ProjectManagers> UpsertProjectManagerAsync(ProjectManagers projectManager, int projectId)
+        public async Task<string> GetPMMailAsync(string PMName)
         {
-            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            var ProjectManager1 = await _projectManagerRepository.GetProjectManagerByPMNameAsync(PMName);
+            var ProjectManager2 = await _projectRepository.GetProjectsByPMNameAsync(PMName);
+
+            if (ProjectManager1 != null && ProjectManager2 != null &&
+                ProjectManager1.Name == ProjectManager2.ProjectManager)
+            {
+                ProjectManager2.PMMails = ProjectManager1.Email;
+                return ProjectManager2.PMMails;
+            }
+
+            return null;
+        }
+     
+        public async Task<ProjectManagers> UpsertProjectManagerAsync(ProjectManagers projectManager, string PMName)
+        {
+            var project = await _projectRepository.GetProjectsByPMNameAsync(PMName);
 
             if (project == null)
             {
                 throw new ArgumentException("Project not found");
             }
 
-            var existingManager = await _projectManagerRepository.GetProjectManagerByProjectIdAsync(projectId);
+            var existingManager = await _projectManagerRepository.GetProjectManagerByPMNameAsync(PMName);
 
             if (existingManager == null)
             {
                 existingManager = new ProjectManagers
                 {
-                    ProjectId = projectId,
                     Name = project.ProjectManager, // Use the name from the project
                     Email = projectManager.Email // Assuming email needs to be provided
                 };
@@ -45,11 +60,5 @@ namespace DATEX_ProjectDatabase.Service
 
             return existingManager;
         }
-
-        // Remove the method that only takes ProjectManagers if you are using the other overload
-        // public Task<ProjectManagers> UpsertProjectManagerAsync(ProjectManagers projectManager)
-        // {
-        //     throw new NotImplementedException();
-        // }
     }
 }

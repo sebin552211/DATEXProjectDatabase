@@ -32,7 +32,7 @@ namespace DATEX_ProjectDatabase.Service
 
         foreach (var project in projects)
         {
-            var manager = await _projectManagerRepository.GetProjectManagerByProjectIdAsync(project.ProjectId);
+            var manager = await _projectManagerRepository.GetProjectManagerByPMNameAsync(project.ProjectManager);
 
             if (manager != null)
             {

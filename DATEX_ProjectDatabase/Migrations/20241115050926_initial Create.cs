@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DATEX_ProjectDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateWithExpData : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,7 @@ namespace DATEX_ProjectDatabase.Migrations
                     DU = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DUHead = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProjectStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ProjectEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProjectEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ProjectManager = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContractType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NumberOfResources = table.Column<int>(type: "int", nullable: true),
@@ -34,6 +34,8 @@ namespace DATEX_ProjectDatabase.Migrations
                     ForecastedEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     VOCEligibilityDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ProjectDurationInDays = table.Column<int>(type: "int", nullable: false, computedColumnSql: "DATEDIFF(day, ProjectStartDate, ProjectEndDate)"),
+                    VOCFeedbackReceivedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    VocRemarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProjectDurationInMonths = table.Column<int>(type: "int", nullable: false, computedColumnSql: "DATEDIFF(month, ProjectStartDate, ProjectEndDate)"),
                     ProjectType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Domain = table.Column<string>(type: "nvarchar(max)", nullable: true),

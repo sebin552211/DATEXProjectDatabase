@@ -1,6 +1,8 @@
 ﻿using DATEX_ProjectDatabase.Data;
 using DATEX_ProjectDatabase.Interfaces;
+using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,11 +32,114 @@ public class ProjectRepository : IProjectRepository
         return await _context.Projects.FirstOrDefaultAsync(p => p.ProjectCode == projectCode);
     }
 
+    public async Task<Project> GetProjectsByPMNameAsync(string PMName)
+    {
+        return await _context.Projects
+            .FirstOrDefaultAsync(p => p.ProjectManager == PMName);
+    }
+
+    public async Task<Project> AddPMIntitiateDate(int projectId, DateTime? PMInitiateDate)
+    {
+        var project = await _context.Projects.FindAsync(projectId);
+        if (project == null)
+        {
+            throw new KeyNotFoundException($"Project with ID {projectId} not found.");
+        }
+        project.PMInitiateDate = PMInitiateDate;
+        _context.Projects.Update(project);
+        await _context.SaveChangesAsync();
+        return project;
+    }
+
+    public async Task<Project> DeletePMIntitiateDate(int projectId)
+    {
+        var project = await GetProjectByIdAsync(projectId);
+
+        if (project != null)
+        {
+            project.PMInitiateDate = null;
+            await _context.SaveChangesAsync();
+        }
+
+        return project;
+
+    }
+
+    public async Task<Project> DeleteVOCFeedbackReceivedDateByProjectIdAsync(int projectId)
+    {
+        var project = await GetProjectByIdAsync(projectId);
+
+        if (project != null)
+        {
+            project.VOCFeedbackReceivedDate = null;
+            await _context.SaveChangesAsync(); 
+        }
+
+        return project;
+    }
+
+    public async Task AddVOCFeedbackReceivedDateAsync(int projectId, DateTime? vocFeedbackReceivedDate)
+    {
+        var project = await _context.Projects.FindAsync(projectId);
+        if (project == null)
+        {
+            throw new KeyNotFoundException($"Project with ID {projectId} not found.");
+        }
+
+        project.VOCFeedbackReceivedDate = vocFeedbackReceivedDate;
+        _context.Projects.Update(project);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<Project> AddProjectRemarksAsync(int projectId, string remarks)
+    {
+        var project = await GetProjectByIdAsync(projectId);
+
+        if (project != null)
+        {
+            project.VocRemarks = remarks; // Update the remarks
+            await _context.SaveChangesAsync(); // Save the changes
+        }
+
+        return project; // Return the updated project
+    }
+
+    public async Task<Project> UpdateProjectRemarksAsync(int projectId, string remarks)
+    {
+        var project = await GetProjectByIdAsync(projectId);
+
+        if (project != null)
+        {
+            project.VocRemarks = remarks; // Update the remarks
+            await _context.SaveChangesAsync(); // Save the changes
+        }
+
+        return project; // Return the updated project
+    }
+
+    public async Task<Project> DeleteProjectRemarksAsync(int projectId)
+    {
+        var project = await GetProjectByIdAsync(projectId);
+
+        if (project != null)
+        {
+            project.VocRemarks = null; // Clear the remarks
+            await _context.SaveChangesAsync(); // Save the changes
+        }
+
+        return project; // Return the updated project
+    }
+
     public async Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes)
     {
         return await _context.Projects.Where(p => projectCodes.Contains(p.ProjectCode)).ToListAsync();
     }
-
+    public async Task<IEnumerable<Project>> GetProjectsByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        return await _context.Projects
+            .Where(p => p.VOCEligibilityDate >= startDate && p.VOCEligibilityDate <= endDate)
+            .ToListAsync();
+    }
     public async Task UpdateProjectsAsync(IEnumerable<Project> projects)
     {
         _context.Projects.UpdateRange(projects);

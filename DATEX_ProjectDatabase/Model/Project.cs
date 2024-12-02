@@ -1,4 +1,7 @@
 ﻿using DATEX_ProjectDatabase.Model;
+using Newtonsoft.Json;
+using System.Globalization;
+using System.Net.Mail;
 
 namespace DATEX_ProjectDatabase.Models
 {
@@ -11,7 +14,7 @@ namespace DATEX_ProjectDatabase.Models
         public string DU { get; set; }
         public string DUHead { get; set; }
         public DateTime ProjectStartDate { get; set; }
-        public DateTime ProjectEndDate { get; set; }
+        public DateTime? ProjectEndDate { get; set; }
         public string ProjectManager { get; set; }
         public string ContractType { get; set; }
         public int? NumberOfResources { get; set; }
@@ -25,6 +28,10 @@ namespace DATEX_ProjectDatabase.Models
         public DateTime? ForecastedEndDate { get; set; }
         public DateTime? VOCEligibilityDate { get; set; }
         public int ProjectDurationInDays { get; set; }
+        public DateTime? PMInitiateDate { get; set; }
+        public DateTime? VOCFeedbackReceivedDate { get; set; }
+        public string PMMails { get; set; }
+        public string VocRemarks { get; set; }
         public int ProjectDurationInMonths { get; set; }
         public string ProjectType { get; set; }
         public string Domain { get; set; }
@@ -33,8 +40,8 @@ namespace DATEX_ProjectDatabase.Models
         public string FeedbackStatus { get; set; } // (Received, Pending)
         public string MailStatus { get; set; } // (Initiated, Not Initiated)
 
-        public ICollection<ProjectManagers> ProjectManagers { get; set; }
-
+        /*public ICollection<ProjectManagers> ProjectManagers { get; set; }*/
+        public ProjectManagers ProjectManagerDetails { get; set; }
 
     }
 }

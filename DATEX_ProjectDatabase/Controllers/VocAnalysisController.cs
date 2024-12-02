@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using DATEX_ProjectDatabase.Service;
 using DATEX_ProjectDatabase.Interfaces;
+using DATEX_ProjectDatabase.Models;
+using DATEX_ProjectDatabase.Model;
 
 namespace DATEX_ProjectDatabase.Controllers
 {
@@ -23,6 +25,31 @@ namespace DATEX_ProjectDatabase.Controllers
 
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    // Process the Excel file directly from the stream
+                    await _vocAnalysisService.ProcessExcelFileAsync(stream);
+                }
+
+                return Ok("File processed successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return a failure response
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> Update(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

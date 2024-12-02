@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DATEX_ProjectDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,7 +72,10 @@ namespace DATEX_ProjectDatabase.Migrations
                     Communication = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Knowledge = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EngageService = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Score = table.Column<int>(type: "int", nullable: false)
+                    Score = table.Column<int>(type: "int", nullable: false),
+                    VOCFeedbackReceivedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VOCRemarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PMInitiateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -61,7 +61,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         DU = externalProject.DU,
                         DUHead = externalProject.DUHead,
                         ProjectStartDate = externalProject.ProjectStartDate,
-                        ProjectEndDate = externalProject.ProjectEndDate,
+                        ProjectEndDate = (DateTime)externalProject.ProjectEndDate,
                         ProjectManager = externalProject.ProjectManager,
                         ContractType = externalProject.ContractType,
                         NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
@@ -81,7 +81,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         existingProject.DU = externalProject.DU;
                         existingProject.DUHead = externalProject.DUHead;
                         existingProject.ProjectStartDate = externalProject.ProjectStartDate;
-                        existingProject.ProjectEndDate = externalProject.ProjectEndDate;
+                        existingProject.ProjectEndDate = (DateTime)externalProject.ProjectEndDate;
                         existingProject.ProjectManager = externalProject.ProjectManager;
                         existingProject.ContractType = externalProject.ContractType;
                         existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
@@ -414,13 +414,14 @@ namespace DATEX_ProjectDatabase.Controllers
                 _projectRepository.UpdateProjectEditableFields(id, project);
                 await _projectRepository.SaveAsync();
 
-                return NoContent();
+                // Fetch the updated project to return in the response
+                var updatedProject = await _projectRepository.GetProjectByIdAsync(id);
+
+                return Ok(updatedProject);
             }
             catch (Exception ex)
             {
                 // Log the exception
-                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
-                Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
@@ -613,4 +614,6 @@ namespace DATEX_ProjectDatabase.Controllers
             }
         }
     }
+
+
 }

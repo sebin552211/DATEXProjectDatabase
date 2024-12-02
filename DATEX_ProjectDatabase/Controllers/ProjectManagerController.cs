@@ -1,5 +1,4 @@
 ﻿using DATEX_ProjectDatabase.Interfaces;
-using DATEX_ProjectDatabase.Migrations;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Service;
 using Microsoft.AspNetCore.Mvc;

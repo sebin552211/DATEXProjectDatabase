@@ -202,18 +202,28 @@ public class ProjectRepository : IProjectRepository
         {
             existingProject.SQA = project.SQA;
             existingProject.ForecastedEndDate = project.ForecastedEndDate;
-            existingProject.VOCEligibilityDate = project.VOCEligibilityDate;
-            existingProject.ProjectDurationInDays = project.ProjectDurationInDays;
-            existingProject.ProjectDurationInMonths = project.ProjectDurationInMonths;
             existingProject.ProjectType = project.ProjectType;
             existingProject.Domain = project.Domain;
             existingProject.DatabaseUsed = project.DatabaseUsed;
             existingProject.CloudUsed = project.CloudUsed;
+            existingProject.Technology = project.Technology;
+
+            // Check if feedback status is being changed to "Received"
+            if (project.FeedbackStatus == "Received" && existingProject.FeedbackStatus != "Received")
+            {
+                existingProject.VOCEligibilityDate = DateTime.Now.AddMonths(6);
+            }
+            else if (project.FeedbackStatus != "Received")
+            {
+                // Reset VOCEligibilityDate if feedback status is changed from "Received" to something else
+                existingProject.VOCEligibilityDate = null;
+            }
+
             existingProject.FeedbackStatus = project.FeedbackStatus;
             existingProject.MailStatus = project.MailStatus;
-            existingProject.Technology = project.Technology;
         }
     }
+
 
     public async Task<IEnumerable<Project>> GetFilteredProjectsAsync(string du = null, string duHead = null, DateTime? projectStartDate = null, DateTime? projectEndDate = null, string projectManager = null, string contractType = null, string customerName = null, string region = null, string technology = null, string status = null, string sqa = null, DateTime? vocEligibilityDate = null, string projectType = null, string domain = null, string databaseUsed = null, string cloudUsed = null, string feedbackStatus = null, string mailStatus = null)
     {
@@ -275,4 +285,5 @@ public class ProjectRepository : IProjectRepository
 
         return await query.ToListAsync();
     }
+
 }

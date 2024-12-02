@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241115050926_initial Create")]
-    partial class initialCreate
+    [Migration("20241202065733_new create")]
+    partial class newcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,9 +67,10 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
                     b.HasKey("ProjectManagerId");
@@ -170,6 +171,12 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<int?>("NumberOfResources")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("PMInitiateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PMMails")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -183,11 +190,11 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("int")
                         .HasComputedColumnSql("DATEDIFF(month, ProjectStartDate, ProjectEndDate)");
 
-                    b.Property<DateTime?>("ProjectEndDate")
+                    b.Property<DateTime>("ProjectEndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ProjectManager")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProjectName")
                         .HasColumnType("nvarchar(max)");
@@ -221,6 +228,8 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.HasKey("ProjectId");
 
+                    b.HasIndex("ProjectManager");
+
                     b.ToTable("Projects");
                 });
 
@@ -237,13 +246,25 @@ namespace DATEX_ProjectDatabase.Migrations
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
                 {
-                    b.HasOne("DATEX_ProjectDatabase.Models.Project", "Project")
+                    b.HasOne("DATEX_ProjectDatabase.Models.Project", null)
                         .WithMany("ProjectManagers")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
+                });
 
-                    b.Navigation("Project");
+            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
+                {
+                    b.HasOne("DATEX_ProjectDatabase.Model.ProjectManagers", "ProjectManagerDetails")
+                        .WithMany("Projects")
+                        .HasForeignKey("ProjectManager")
+                        .HasPrincipalKey("Name")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ProjectManagerDetails");
+                });
+
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
+                {
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>

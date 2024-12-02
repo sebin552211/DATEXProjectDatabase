@@ -67,7 +67,12 @@ namespace DATEX_ProjectDatabase.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
                     b.HasKey("ProjectManagerId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectManagers");
                 });
@@ -182,7 +187,7 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("int")
                         .HasComputedColumnSql("DATEDIFF(month, ProjectStartDate, ProjectEndDate)");
 
-                    b.Property<DateTime?>("ProjectEndDate")
+                    b.Property<DateTime>("ProjectEndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ProjectManager")
@@ -236,6 +241,13 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
+                {
+                    b.HasOne("DATEX_ProjectDatabase.Models.Project", null)
+                        .WithMany("ProjectManagers")
+                        .HasForeignKey("ProjectId");
+                });
+
             modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
                 {
                     b.HasOne("DATEX_ProjectDatabase.Model.ProjectManagers", "ProjectManagerDetails")
@@ -255,6 +267,11 @@ namespace DATEX_ProjectDatabase.Migrations
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
+                {
+                    b.Navigation("ProjectManagers");
                 });
 #pragma warning restore 612, 618
         }

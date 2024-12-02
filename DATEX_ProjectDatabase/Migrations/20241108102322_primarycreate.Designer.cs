@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240904121618_InitialCreateWithExpData")]
-    partial class InitialCreateWithExpData
+    [Migration("20241108102322_primarycreate")]
+    partial class primarycreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,6 +115,9 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("Knowledge")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("PMInitiateDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PlanningAndControl")
                         .HasColumnType("nvarchar(max)");
 
@@ -123,6 +126,12 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.Property<int>("Score")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("VOCFeedbackReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VOCRemarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

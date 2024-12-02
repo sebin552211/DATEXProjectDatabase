@@ -13,7 +13,7 @@
         public int? NumberOfResources { get; set; }
         public string CustomerName { get; set; }
         public string Region { get; set; }
-        public string Technology { get; set; }
+      /*  public string Technology { get; set; }*/
         public string Status { get; set; }
     }
 

@@ -12,10 +12,11 @@ namespace DATEX_ProjectDatabase.Service
             _httpClient = httpClient;
         }
 
-        /*api link*/
+    
+
         public async Task<List<ProjectDto>> GetProjectsFromExternalApiAsync()
         {
-            var response = await _httpClient.GetAsync("http://localhost:4000/projects");
+            var response = await _httpClient.GetAsync("https://api-rmtool.experionglobal.dev/api/projectsdetails/list");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -24,7 +25,29 @@ namespace DATEX_ProjectDatabase.Service
 
             var content = await response.Content.ReadAsStringAsync();
             Console.WriteLine(content);
-            return JsonConvert.DeserializeObject<List<ProjectDto>>(content);
+
+            // Deserialize the content into ApiResponse model
+            var apiResponse = JsonConvert.DeserializeObject<ApiResponse>(content);
+
+            // Extract and map the project data to ProjectDto
+            var projectDtos = apiResponse.Data.Select(projectData => new ProjectDto
+            {
+                ProjectCode = projectData.Project.ProjectCode,
+                ProjectName = projectData.Project.ProjectName,
+                DU = projectData.Project.DUName,
+                DUHead = projectData.Project.DeliveryManager,
+                ProjectStartDate = projectData.Project.ProjectStartDate ?? DateTime.MinValue,
+                ProjectEndDate = projectData.Project.ProjectEndDate ?? DateTime.MinValue,
+                ProjectManager = projectData.Project.ProjectManager,
+                ContractType = projectData.Project.ContractType,
+                NumberOfResources = projectData.ResourceCount,
+                CustomerName = projectData.Project.ClientName,
+                Region = projectData.Project.Region,    
+                Status = projectData.Project.ProjectStatus
+            }).ToList();
+
+            return projectDtos;
         }
+
     }
 }

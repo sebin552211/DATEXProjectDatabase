@@ -14,7 +14,7 @@
         public string CustomerName { get; set; }
         public DateTime? VOCFeedbackReceivedDate { get; set; }
         public string Region { get; set; }
-        public string Technology { get; set; }
+      /*  public string Technology { get; set; }*/
         public string Status { get; set; }
     }
     public class ProjectRemarksUpdate

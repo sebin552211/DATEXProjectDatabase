@@ -113,6 +113,9 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("Knowledge")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("PMInitiateDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PlanningAndControl")
                         .HasColumnType("nvarchar(max)");
 
@@ -121,6 +124,12 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.Property<int>("Score")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("VOCFeedbackReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VOCRemarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

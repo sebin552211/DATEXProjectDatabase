@@ -67,7 +67,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
                         CustomerName = externalProject.CustomerName,
                         Region = externalProject.Region,
-                        Technology = externalProject.Technology,
+                       
                         Status = externalProject.Status
                     };
 
@@ -87,7 +87,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
                         existingProject.CustomerName = externalProject.CustomerName;
                         existingProject.Region = externalProject.Region;
-                        existingProject.Technology = externalProject.Technology;
+                 
                         existingProject.Status = externalProject.Status;
 
                         _projectRepository.Update(existingProject);
@@ -101,7 +101,7 @@ namespace DATEX_ProjectDatabase.Controllers
                 // Use asynchronous SaveChanges
                 await _projectRepository.SaveAsync();
 
-                return Ok(new { message = "Projects synced with external API" });
+                return Ok(new { message = "Projects synced with external API",externalProjects });
             }
             catch (Exception ex)
             {

@@ -10,6 +10,9 @@
         public string Knowledge { get; set; }
         public string EngageService { get; set; }
         public int Score { get; set; }
+        public DateTime VOCFeedbackReceivedDate { get; set; }  
+        public string VOCRemarks { get; set; }  
+        public DateTime PMInitiateDate { get; set; } 
 
     }
 }

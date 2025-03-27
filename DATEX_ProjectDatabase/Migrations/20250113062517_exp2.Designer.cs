@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241202065859_test")]
-    partial class test
+    [Migration("20250113062517_exp2")]
+    partial class exp2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,30 +53,6 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
-                {
-                    b.Property<int>("ProjectManagerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectManagerId"));
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProjectManagerId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectManagers");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
@@ -127,8 +103,8 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("VOCFeedbackReceivedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("SurveyId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VOCRemarks")
                         .HasColumnType("nvarchar(max)");
@@ -179,6 +155,12 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<int?>("NumberOfResources")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("PMInitiateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PMMails")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -222,6 +204,12 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<DateTime?>("VOCEligibilityDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("VOCFeedbackReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VocRemarks")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ProjectId");
 
                     b.ToTable("Projects");
@@ -238,25 +226,9 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
-                {
-                    b.HasOne("DATEX_ProjectDatabase.Models.Project", "Project")
-                        .WithMany("ProjectManagers")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
                 {
                     b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
-                {
-                    b.Navigation("ProjectManagers");
                 });
 #pragma warning restore 612, 618
         }

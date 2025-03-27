@@ -1,10 +1,13 @@
-﻿using DATEX_ProjectDatabase.Interfaces;
+﻿using DATEX_ProjectDatabase.Data;
+using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
+using DATEX_ProjectDatabase.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace DATEX_ProjectDatabase.Service
 {
-    public class ProjectManagerService : IProjectManagerService
+   /* public class ProjectManagerService : IProjectManagerService
     {
         private readonly IProjectManagerRepository _projectManagerRepository;
         private readonly IProjectRepository _projectRepository;
@@ -15,7 +18,7 @@ namespace DATEX_ProjectDatabase.Service
             _projectRepository = projectRepository;
         }
 
-        public async Task<ProjectManagers> UpsertProjectManagerAsync(ProjectManagers projectManager, int projectId)
+        public async Task<Project> UpsertProjectManagerAsync(Project projectManager, int projectId)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
@@ -28,28 +31,22 @@ namespace DATEX_ProjectDatabase.Service
 
             if (existingManager == null)
             {
-                existingManager = new ProjectManagers
+                existingManager = new Project
                 {
                     ProjectId = projectId,
-                    Name = project.ProjectManager, // Use the name from the project
-                    Email = projectManager.Email // Assuming email needs to be provided
+                    ProjectManager = project.ProjectManager, // Use the name from the project
+                    PMMails = projectManager.PMMails // Assuming email needs to be provided
                 };
                 await _projectManagerRepository.AddProjectManagerAsync(existingManager);
             }
             else
             {
                 existingManager.Name = project.ProjectManager; // Use the name from the project
-                existingManager.Email = projectManager.Email; // Update email if provided
+                existingManager.Email = projectManager.PMMails; // Update email if provided
                 await _projectManagerRepository.UpdateProjectManagerAsync(existingManager);
             }
 
             return existingManager;
         }
-
-        // Remove the method that only takes ProjectManagers if you are using the other overload
-        // public Task<ProjectManagers> UpsertProjectManagerAsync(ProjectManagers projectManager)
-        // {
-        //     throw new NotImplementedException();
-        // }
-    }
+    }*/
 }

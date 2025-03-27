@@ -1,4 +1,4 @@
-﻿using DATEX_ProjectDatabase.Interfaces;
+﻿/*using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -48,13 +48,13 @@ namespace DATEX_ProjectDatabase.Controllers
             }
             return Ok(pmname);
             // Implementation needed to return a specific Project Manager by ID
-            /*return NotImplemented();*/
+            *//*return NotImplemented();*//*
         }
 
 
         // POST api/<ProjectManagerController>
         [HttpPost]
-        public async Task<IActionResult> PostProjectManager([FromBody] ProjectManagers projectManager)
+        public async Task<IActionResult> PostProjectManagerwithName([FromBody] ProjectManagers projectManager)
         {
             try
             {
@@ -106,8 +106,9 @@ namespace DATEX_ProjectDatabase.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteProjectManager(string PMName)
         {
-            // Implementation needed to delete a Project Manager
-            return NotImplemented();
+            await Task.CompletedTask;
+
+            return new StatusCodeResult(StatusCodes.Status501NotImplemented);
         }
 
         // Helper method for not implemented actions
@@ -117,3 +118,4 @@ namespace DATEX_ProjectDatabase.Controllers
         }
     }
 }
+*/

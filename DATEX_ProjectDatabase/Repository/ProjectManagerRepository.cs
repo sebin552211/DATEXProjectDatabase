@@ -1,4 +1,4 @@
-﻿using DATEX_ProjectDatabase.Data;
+﻿/*using DATEX_ProjectDatabase.Data;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
@@ -18,26 +18,26 @@ namespace DATEX_ProjectDatabase.Repository
             _context = context;
         }
 
-        public async Task<ProjectManagers> GetProjectManagerByPMNameAsync(string PMName)
+        public async Task<Project> GetProjectManagerByPMNameAsync(string PMName)
         {
-            return await _context.ProjectManagers
-                                 .FirstOrDefaultAsync(pm => pm.Name == PMName);
+            return await _context.Projects
+                                 .FirstOrDefaultAsync(pm => pm.ProjectManager == PMName);
         }
 
-        public async Task AddProjectManagerAsync(ProjectManagers projectManager)
+        public async Task AddProjectManagerAsync(Project projectManager)
         {
-            await _context.ProjectManagers.AddAsync(projectManager);
+            await _context.Projects.AddAsync(projectManager);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateProjectManagerAsync(ProjectManagers projectManager)
+        public async Task UpdateProjectManagerAsync(Project projectManager)
         {
-            _context.ProjectManagers.Update(projectManager);
+            _context.Projects.Update(projectManager);
             await _context.SaveChangesAsync();
         }
-        public async Task<IEnumerable<ProjectManagers>> GetAllProjectManagers()
+        public async Task<IEnumerable<Project>> GetAllProjectManagers()
         {
-            return await _context.ProjectManagers.ToListAsync();
+            return await _context.Projects.ToListAsync();
         }
         public async Task<List<Project>> GetProjectManagerAsync(string PMName)
         {
@@ -59,12 +59,6 @@ namespace DATEX_ProjectDatabase.Repository
 
                 await _context.SaveChangesAsync();
             }
-     /*       if (project != null)
-            {
-               
-               await _context.SaveChangesAsync();
-            }
-            return project;*/
         }
         public async Task<Project> AddProjectManagerMail(string PMName, string PMEmail)
         {
@@ -91,7 +85,6 @@ namespace DATEX_ProjectDatabase.Repository
             // Return the first updated project (or any other based on your preference)
             return projects.First();
         }
-
-
     }
 }
+*/

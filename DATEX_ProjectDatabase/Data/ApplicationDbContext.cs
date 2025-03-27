@@ -11,7 +11,7 @@ namespace DATEX_ProjectDatabase.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public DbSet<ProjectManagers> ProjectManagers { get; set; }
+        /*public DbSet<ProjectManagers> ProjectManagers { get; set; }*/
         public DbSet<VOCAnalysis> VocAnalyses { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -41,12 +41,18 @@ namespace DATEX_ProjectDatabase.Data
                 .HasDefaultValue(null)
                 .IsRequired(false);
 
-            modelBuilder.Entity<Project>()
-        .HasOne(p => p.ProjectManagerDetails) // Define one-to-one relationship
-        .WithMany(pm => pm.Projects) // Each manager can have multiple projects
-        .HasForeignKey(p => p.ProjectManager) // Foreign key in Project
-        .HasPrincipalKey(pm => pm.Name) // Principal key in ProjectManagers
-        .OnDelete(DeleteBehavior.Restrict);
+          /*  modelBuilder.Entity<Project>()
+                .HasOne(p => p.VOCAnalysis) // A Project has one VOCAnalysis
+                .WithOne(v => v.Project)    // A VOCAnalysis has one Project
+                .HasForeignKey<VOCAnalysis>(v => v.SurveyId) // Link by ProjectCode
+                .HasPrincipalKey<Project>(p => p.ProjectCode);
+*/
+            /* modelBuilder.Entity<ProjectManagers>().HasNoKey();*/
+
+            /*  modelBuilder.Entity<Project>()
+                  .HasOne(p => p.ProjectManagerDetails) // Define one-to-one relationship
+                  .WithMany(pm => pm.Projects) // Each manager can have multiple projects
+                  .HasForeignKey(p => p.ProjectId); // Foreign key in Project;*/
         }
     }
 }

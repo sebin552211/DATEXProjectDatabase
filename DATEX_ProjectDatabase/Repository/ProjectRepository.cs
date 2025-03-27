@@ -1,10 +1,13 @@
 ﻿using DATEX_ProjectDatabase.Data;
 using DATEX_ProjectDatabase.Interfaces;
+using DATEX_ProjectDatabase.Migrations;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,6 +24,16 @@ public class ProjectRepository : IProjectRepository
     {
         return await _context.Projects.ToListAsync();
     }
+    public void CheckAndSetVOCEligibilityDate(Project project)
+    {
+          int monthsDifference = ((project.ProjectEndDate.Year - project.ProjectStartDate.Year) * 12) +
+                                   (project.ProjectEndDate.Month - project.ProjectStartDate.Month);
+
+          if (monthsDifference < 6)
+          {
+              project.VOCEligibilityDate = project.ProjectEndDate;
+          }
+    }
 
     public async Task<Project> GetProjectByIdAsync(int projectId)
     {
@@ -36,6 +49,43 @@ public class ProjectRepository : IProjectRepository
     {
         return await _context.Projects
             .FirstOrDefaultAsync(p => p.ProjectManager == PMName);
+    }
+
+    public async Task<Project> AddProjectManagerMailAsync(string PMName, string PMEmail)
+    {
+        var project = await GetProjectsByPMNameAsync(PMName);
+
+        if (project == null)
+        {
+            throw new KeyNotFoundException($"No project found for Project Manager {PMName}.");
+        }
+
+        project.PMMails = PMEmail;
+
+        await _context.SaveChangesAsync();
+        return project;
+    }
+    public async Task<List<Project>> GetProjectManagerAsync(string PMName)
+    {
+        var projectmails = await _context.Projects
+            .Where(p => p.ProjectManager == PMName)
+            .ToListAsync();
+
+        return projectmails;
+    }
+
+    public async Task DeleteProjectManagerMail(string PMName)
+    {
+        var project = await GetProjectManagerAsync(PMName);
+        if (project.Any())
+        {
+            foreach (var proj in project)
+            {
+                proj.PMMails = null;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 
     public async Task<Project> AddPMIntitiateDate(int projectId, DateTime? PMInitiateDate)
@@ -97,11 +147,11 @@ public class ProjectRepository : IProjectRepository
 
         if (project != null)
         {
-            project.VocRemarks = remarks; // Update the remarks
-            await _context.SaveChangesAsync(); // Save the changes
+            project.VocRemarks = remarks; 
+            await _context.SaveChangesAsync(); 
         }
 
-        return project; // Return the updated project
+        return project; 
     }
 
     public async Task<Project> UpdateProjectRemarksAsync(int projectId, string remarks)
@@ -110,11 +160,11 @@ public class ProjectRepository : IProjectRepository
 
         if (project != null)
         {
-            project.VocRemarks = remarks; // Update the remarks
-            await _context.SaveChangesAsync(); // Save the changes
+            project.VocRemarks = remarks;
+            await _context.SaveChangesAsync(); 
         }
 
-        return project; // Return the updated project
+        return project;
     }
 
     public async Task<Project> DeleteProjectRemarksAsync(int projectId)
@@ -123,11 +173,11 @@ public class ProjectRepository : IProjectRepository
 
         if (project != null)
         {
-            project.VocRemarks = null; // Clear the remarks
-            await _context.SaveChangesAsync(); // Save the changes
+            project.VocRemarks = null; 
+            await _context.SaveChangesAsync(); 
         }
 
-        return project; // Return the updated project
+        return project;
     }
 
     public async Task<List<Project>> GetProjectsByCodesAsync(IEnumerable<string> projectCodes)
@@ -158,6 +208,7 @@ public class ProjectRepository : IProjectRepository
 
     public void Update(Project project)
     {
+        CheckAndSetVOCEligibilityDate(project);
         _context.Projects.Update(project);
     }
 
@@ -195,8 +246,9 @@ public class ProjectRepository : IProjectRepository
         _context.Projects.Add(project);
     }
 
-    public void UpdateProjectEditableFields(int id, Project project)
+    public async Task UpdateProjectEditableFields(int id, Project project)
     {
+        var existingProject1 = await GetProjectByIdAsync(project.ProjectId);
         var existingProject = _context.Projects.Find(id);
         if (existingProject != null)
         {
@@ -207,6 +259,7 @@ public class ProjectRepository : IProjectRepository
             existingProject.DatabaseUsed = project.DatabaseUsed;
             existingProject.CloudUsed = project.CloudUsed;
             existingProject.Technology = project.Technology;
+            /*existingProject.VOCEligibilityDate = project.VOCEligibilityDate;*/
 
             // Check if feedback status is being changed to "Received"
             if (project.FeedbackStatus == "Received" && existingProject.FeedbackStatus != "Received")
@@ -215,17 +268,19 @@ public class ProjectRepository : IProjectRepository
             }
             else if (project.FeedbackStatus != "Received")
             {
+                existingProject.VOCEligibilityDate = project.VOCEligibilityDate;
                 // Reset VOCEligibilityDate if feedback status is changed from "Received" to something else
-                existingProject.VOCEligibilityDate = null;
+                /*existingProject.VOCEligibilityDate = null;*/
             }
 
             existingProject.FeedbackStatus = project.FeedbackStatus;
             existingProject.MailStatus = project.MailStatus;
-        }
+            CheckAndSetVOCEligibilityDate(existingProject1);
+        }        
     }
 
 
-    public async Task<IEnumerable<Project>> GetFilteredProjectsAsync(string du = null, string duHead = null, DateTime? projectStartDate = null, DateTime? projectEndDate = null, string projectManager = null, string contractType = null, string customerName = null, string region = null, string technology = null, string status = null, string sqa = null, DateTime? vocEligibilityDate = null, string projectType = null, string domain = null, string databaseUsed = null, string cloudUsed = null, string feedbackStatus = null, string mailStatus = null)
+    public async Task<IEnumerable<Project>> GetFilteredProjectsAsync(string du = null, string duHead = null, string projectCode = null, DateTime? projectStartDate = null, DateTime? projectEndDate = null, string projectManager = null, string contractType = null, string customerName = null, string region = null, string technology = null, string status = null, string sqa = null, DateTime? vocEligibilityDate = null, string projectType = null, string domain = null, string databaseUsed = null, string cloudUsed = null, string feedbackStatus = null, string mailStatus = null)
     {
         var query = _context.Projects.AsQueryable();
 
@@ -234,6 +289,9 @@ public class ProjectRepository : IProjectRepository
 
         if (!string.IsNullOrEmpty(duHead))
             query = query.Where(p => p.DUHead == duHead);
+
+        if (!string.IsNullOrEmpty(projectCode))
+            query = query.Where(p => p.ProjectCode == projectCode);
 
         if (projectStartDate.HasValue)
             query = query.Where(p => p.ProjectStartDate >= projectStartDate.Value);

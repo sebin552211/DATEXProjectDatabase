@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<<< HEAD:DATEX_ProjectDatabase/Migrations/20241202065733_new create.Designer.cs
-    [Migration("20241202065733_new create")]
-    partial class newcreate
-========
-    [Migration("20241202065859_test")]
-    partial class test
->>>>>>>> ceb342af77952124ad59666e221ea18e1d10a358:DATEX_ProjectDatabase/Migrations/20241202065859_test.Designer.cs
+    [Migration("20250113062517_exp2")]
+    partial class exp2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,31 +53,6 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
-                {
-                    b.Property<int>("ProjectManagerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectManagerId"));
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProjectManagerId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectManagers");
                 });
 
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
@@ -133,8 +103,8 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("VOCFeedbackReceivedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("SurveyId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VOCRemarks")
                         .HasColumnType("nvarchar(max)");
@@ -208,7 +178,7 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ProjectManager")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProjectName")
                         .HasColumnType("nvarchar(max)");
@@ -242,8 +212,6 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.HasKey("ProjectId");
 
-                    b.HasIndex("ProjectManager");
-
                     b.ToTable("Projects");
                 });
 
@@ -258,37 +226,9 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
-                {
-                    b.HasOne("DATEX_ProjectDatabase.Models.Project", null)
-                        .WithMany("ProjectManagers")
-                        .HasForeignKey("ProjectId");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
-                {
-                    b.HasOne("DATEX_ProjectDatabase.Model.ProjectManagers", "ProjectManagerDetails")
-                        .WithMany("Projects")
-                        .HasForeignKey("ProjectManager")
-                        .HasPrincipalKey("Name")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ProjectManagerDetails");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Model.ProjectManagers", b =>
-                {
-                    b.Navigation("Projects");
-                });
-
             modelBuilder.Entity("DATEX_ProjectDatabase.Model.Role", b =>
                 {
                     b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("DATEX_ProjectDatabase.Models.Project", b =>
-                {
-                    b.Navigation("ProjectManagers");
                 });
 #pragma warning restore 612, 618
         }

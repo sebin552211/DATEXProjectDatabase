@@ -12,10 +12,9 @@ namespace DATEX_ProjectDatabase.Models
         // Read-only fields (received from external API)
         private DateTime _projectStartDate;
         private DateTime _projectEndDate;
-
         public int ProjectId { get; set; }
-        public string ProjectCode { get; set; }
-        public string ProjectName { get; set; }
+        public string ProjectCode { get; set; } 
+        public string ProjectName { get; set; } 
         public string DU { get; set; }
         public string DUHead { get; set; }
 
@@ -39,9 +38,6 @@ namespace DATEX_ProjectDatabase.Models
                 CalculateVOCEligibilityDate();
             }
         }
-
-        /*public DateTime ProjectStartDate { get; set; }
-        public DateTime? ProjectEndDate { get; set; }*/
         public string ProjectManager { get; set; }
         public string ContractType { get; set; }
         public int? NumberOfResources { get; set; }
@@ -67,27 +63,15 @@ namespace DATEX_ProjectDatabase.Models
         public string FeedbackStatus { get; set; } // (Received, Pending)
         public string MailStatus { get; set; } // (Initiated, Not Initiated)
 
-        public ICollection<ProjectManagers> ProjectManagers { get; set; }
-
         // Automatically calculates the VOC Eligibility Date
         private void CalculateVOCEligibilityDate()
         {
-            if (_projectStartDate != default && _projectEndDate != default)
+            int monthsDifference = ((ProjectEndDate.Year - ProjectStartDate.Year) * 12) +
+                               ProjectEndDate.Month - ProjectStartDate.Month;
+            if (monthsDifference < 6)
             {
-                DateTime sixMonthsFromStart = _projectStartDate.AddMonths(6);
-                if (_projectEndDate <= sixMonthsFromStart)
-                {
-                    VOCEligibilityDate = _projectEndDate;
-                }
-                else
-                {
-                    VOCEligibilityDate = sixMonthsFromStart;
-                }
+                VOCEligibilityDate = ProjectEndDate;
             }
         }
-        /*public ICollection<ProjectManagers> ProjectManagers { get; set; }*/
-        public ProjectManagers ProjectManagerDetails { get; set; }
-
-                
     }
 }

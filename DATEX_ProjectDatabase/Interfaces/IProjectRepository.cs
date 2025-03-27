@@ -23,6 +23,10 @@ public interface IProjectRepository
     int GetTotalProjectsCount();
     /*Task<Project> GetVOCFeedbackReceivedDateByProjectIdAsync(int projectId);*/
     Task<Project> AddPMIntitiateDate(int projectId, DateTime? PMInitiateDate);
+    Task<Project> AddProjectManagerMailAsync(string PMName, string PMEmail);
+    Task DeleteProjectManagerMail(string PMName);
+    /*Task vocEligibilityDatetoEndDate(int projectId);*/
+    void CheckAndSetVOCEligibilityDate(Project project);
 
     Task<Project> DeletePMIntitiateDate(int projectId);
     Task<Project> DeleteVOCFeedbackReceivedDateByProjectIdAsync(int projectId);
@@ -33,11 +37,12 @@ public interface IProjectRepository
     Task<Project> DeleteProjectRemarksAsync(int projectId);
     Task<Project> GetProjectsByPMNameAsync(string PMName);
     void AddProjectEditableFields(Project project);
-    void UpdateProjectEditableFields(int id, Project project);
+    Task UpdateProjectEditableFields(int id, Project project);
 
     Task<IEnumerable<Project>> GetFilteredProjectsAsync(
     string du = null,
     string duHead = null,
+    string projectCode = null,
     DateTime? projectStartDate = null,
     DateTime? projectEndDate = null,
     string projectManager = null,

@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using DATEX_ProjectDatabase.Model;
+using System.Net.Http.Headers;
+
 
 namespace DATEX_ProjectDatabase.Service
 {
@@ -7,16 +9,22 @@ namespace DATEX_ProjectDatabase.Service
     {
         private readonly HttpClient _httpClient;
 
+        /*private const string ApiScope = "api://80b64e33-0210-4e19-be18-56028882483d/Read";*/
+
         public ExternalApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-        }
 
-    
+        }
 
         public async Task<List<ProjectDto>> GetProjectsFromExternalApiAsync()
         {
-            var response = await _httpClient.GetAsync("https://api-rmtool.experionglobal.dev/api/projectsdetails/list");
+                 
+
+            // Set the Authorization header with the Bearer token
+            
+
+            var response = await _httpClient.GetAsync("https://api-rmtool.experionglobal.dev/api/projects/bugudomainregion/list");  /*https://api-rmtool.experionglobal.dev/api/projectsdetails/list*/
 
             if (!response.IsSuccessStatusCode)
             {

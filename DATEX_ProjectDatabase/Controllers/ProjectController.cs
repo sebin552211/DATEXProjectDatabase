@@ -1,7 +1,8 @@
-﻿using DATEX_ProjectDatabase.Interfaces;
+﻿using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Models;
 using DATEX_ProjectDatabase.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,67 +31,277 @@ namespace DATEX_ProjectDatabase.Controllers
             {
                 var externalProjects = await _externalApiService.GetProjectsFromExternalApiAsync();
 
-                foreach (var externalProject in externalProjects)
+            foreach (var externalProject in externalProjects)
+            {
+                var project = new Project
                 {
-                    var project = new Project
-                    {
-                        ProjectCode = externalProject.ProjectCode,
-                        ProjectName = externalProject.ProjectName,
-                        DU = externalProject.DU,
-                        DUHead = externalProject.DUHead,
-                        ProjectStartDate = externalProject.ProjectStartDate,
-                        ProjectEndDate = externalProject.ProjectEndDate,
-                        ProjectManager = externalProject.ProjectManager,
-                        ContractType = externalProject.ContractType,
-                        NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
-                        CustomerName = externalProject.CustomerName,
-                        Region = externalProject.Region,
-                        Technology = externalProject.Technology,
-                        Status = externalProject.Status
-                    };
+                    ProjectCode = externalProject.ProjectCode,
+                    ProjectName = externalProject.ProjectName,
+                    DU = externalProject.DU,
+                    DUHead = externalProject.DUHead,
+                    ProjectStartDate = externalProject.ProjectStartDate,
+                    ProjectEndDate = (DateTime)externalProject.ProjectEndDate,
+                    ProjectManager = externalProject.ProjectManager,
+                    ContractType = externalProject.ContractType,
+                    NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null,
+                    CustomerName = externalProject.CustomerName,
+                    Region = externalProject.Region,
 
-                    // Use asynchronous method to get project by code
-                    var existingProject = await _projectRepository.GetProjectByCodeAsync(externalProject.ProjectCode);
+                    Status = externalProject.Status
+                };
 
-                    if (existingProject != null)
-                    {
-                        // Update existing project with external API data
-                        existingProject.ProjectName = externalProject.ProjectName;
-                        existingProject.DU = externalProject.DU;
-                        existingProject.DUHead = externalProject.DUHead;
-                        existingProject.ProjectStartDate = externalProject.ProjectStartDate;
-                        existingProject.ProjectEndDate = externalProject.ProjectEndDate;
-                        existingProject.ProjectManager = externalProject.ProjectManager;
-                        existingProject.ContractType = externalProject.ContractType;
-                        existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
-                        existingProject.CustomerName = externalProject.CustomerName;
-                        existingProject.Region = externalProject.Region;
-                        existingProject.Technology = externalProject.Technology;
-                        existingProject.Status = externalProject.Status;
+                var existingProject = await _projectRepository.GetProjectByCodeAsync(externalProject.ProjectCode);
 
-                        _projectRepository.Update(existingProject);
-                    }
-                    else
-                    {
-                        _projectRepository.Add(project);
-                    }
+                if (existingProject != null)
+                {
+                    existingProject.ProjectName = externalProject.ProjectName;
+                    existingProject.DU = externalProject.DU;
+                    existingProject.DUHead = externalProject.DUHead;
+                    existingProject.ProjectStartDate = externalProject.ProjectStartDate;
+                    existingProject.ProjectEndDate = (DateTime)externalProject.ProjectEndDate;
+                    existingProject.ProjectManager = externalProject.ProjectManager;
+                    existingProject.ContractType = externalProject.ContractType;
+                    existingProject.NumberOfResources = externalProject.NumberOfResources.HasValue ? (int?)externalProject.NumberOfResources.Value : null;
+                    existingProject.CustomerName = externalProject.CustomerName;
+                    existingProject.Region = externalProject.Region;
+
+                    existingProject.Status = externalProject.Status;
+
+                    _projectRepository.Update(existingProject);
                 }
-
-                // Use asynchronous SaveChanges
-                await _projectRepository.SaveAsync();
-
-                return Ok(new { message = "Projects synced with external API" });
+                else
+                {
+                    _projectRepository.Add(project);
+                }
             }
+
+            // Use asynchronous SaveChanges
+            await _projectRepository.SaveAsync();
+
+            return Ok(new { message = "Projects synced with external API", externalProjects });
+        }
             catch (Exception ex)
             {
                 // Log the exception
                 var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
-                Console.WriteLine(errorMessage);
+        Console.WriteLine(errorMessage);
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+        [HttpGet("GetProjectsByFinancialQuarter")]
+        public async Task<IActionResult> GetProjectsByFinancialQuarter(string financialYear, int quarter)
+        {
+            var years = financialYear.Split('-');
+            if (years.Length != 2 || !int.TryParse(years[0], out int startYear) || !int.TryParse(years[1], out int endYear) || endYear != startYear + 1)
+            {
+                return BadRequest("Invalid financial year format. It must be in the format 'YYYY-YYYY' with consecutive years.");
+            }
 
-        // Other actions remain the same...
+            if (quarter < 1 || quarter > 4)
+            {
+                return BadRequest("Invalid quarter. It must be between 1 and 4.");
+            }
+
+            var (startDate, endDate) = GetFinancialQuarterDates(startYear, quarter);
+
+            var projects = await _projectRepository.GetProjectsByDateRangeAsync(startDate, endDate);
+            return Ok(projects);
+        }
+        [HttpGet("GetProjectsByFinancialYear")]
+        public async Task<IActionResult> GetProjectsByFinancialYear(string financialYear)
+        {
+            var years = financialYear.Split('-');
+            if (years.Length != 2 || !int.TryParse(years[0], out int startYear) || !int.TryParse(years[1], out int endYear) || endYear != startYear + 1)
+            {
+                return BadRequest("Invalid financial year format. It must be in the format 'YYYY-YYYY' with consecutive years.");
+            }
+
+            var startDate = new DateTime(startYear, 4, 1); // Financial year starts on April 1st
+            var endDate = new DateTime(endYear, 3, 31);    // Financial year ends on March 31st
+
+            var projects = await _projectRepository.GetProjectsByDateRangeAsync(startDate, endDate);
+
+            if (projects == null || !projects.Any())
+            {
+                return NotFound(new { Message = $"No projects found for the financial year {financialYear}." });
+            }
+
+            return Ok(projects);
+        }
+
+        [HttpPost("{projectId}/remarks")]
+        public async Task<IActionResult> AddProjectRemarks(int projectId, [FromBody] ProjectRemarksUpdate model)
+        {
+            var updatedProject = await _projectRepository.AddProjectRemarksAsync(projectId, model.VocRemarks);
+
+            if (updatedProject == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedProject);
+        }
+
+        [HttpPut("{projectId}/remarks")]
+        public async Task<IActionResult> UpdateProjectRemarks(int projectId, [FromBody] ProjectRemarksUpdate model)
+        {
+            var updatedProject = await _projectRepository.UpdateProjectRemarksAsync(projectId, model.VocRemarks);
+
+            if (updatedProject == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedProject);
+        }
+
+        [HttpDelete("{projectId}/remarks")]
+        public async Task<IActionResult> DeleteProjectRemarks(int projectId)
+        {
+            var updatedProject = await _projectRepository.DeleteProjectRemarksAsync(projectId);
+
+            if (updatedProject == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedProject);
+        }
+
+        [HttpGet("{projectId}/PMIntiateDate")]
+        public async Task<IActionResult> GetPMIntitiateDate(int projectId)
+        {
+           var project = await _projectRepository.GetProjectByIdAsync(projectId);
+                if (project == null || project.PMInitiateDate == null)
+                {
+                    return NotFound("Project or PMInitiateDate not found");
+                }
+                return Ok(project.PMInitiateDate);
+        }
+
+        [HttpPost("{projectId}/PMIntiateDate")]
+        public async Task<IActionResult> AddPMIntitiateDates(int projectId, [FromBody] PMInitiateDateDTO PMIntitiateDate)
+        {
+            try
+            {
+                var project = await _projectRepository.AddPMIntitiateDate(projectId, PMIntitiateDate.PMInitiateDate);
+                return Ok(new { success = true, message = "PM Initiate Date received." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "An error occurred while processing the request.", message = ex.Message });
+            }
+        }
+        [HttpDelete("{projectId}/PMIntiateDate")]
+        public async Task<IActionResult> DeletePMIntitiateDates(int projectId)
+        {
+            var project = await _projectRepository.DeletePMIntitiateDate(projectId);
+            if (project == null)
+            {
+                return NotFound();
+            }
+            return Ok(project);
+        }
+
+        [HttpGet("{projectId}/VOCFeedbackReceivedDate")]
+        public async Task<ActionResult<DateTime?>> GetVOCFeedbackReceivedDate(int projectId)
+        {
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            if (project == null || project.VOCFeedbackReceivedDate == null)
+            {
+                return NotFound("Project or VocFeedbackDate not found");
+            }
+            return Ok(project.VOCFeedbackReceivedDate);
+        }
+
+        [HttpPost("{projectId}/VOCFeedbackReceivedDate")]
+        public async Task<IActionResult> AddVOCFeedbackReceivedDate(int projectId, [FromBody] VOCFeedbackDto vOCFeedbackDto)
+        {
+           try
+            {
+                // Process feedback
+                await _projectRepository.AddVOCFeedbackReceivedDateAsync(projectId, vOCFeedbackDto.VOCFeedbackReceivedDate);
+                return Ok(new { success = true, message = "Feedback received." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "An error occurred while processing the request.", message = ex.Message });
+            }
+            //return Ok("VOCFeedbackReceivedDate updated successfully");
+        }
+
+        [HttpDelete("{projectId}/VOCFeedbackReceivedDate")]
+        public async Task<IActionResult> DeleteVOCFeedbackReceivedDateByProjectId(int projectId)
+        {
+            var updatedProject = await _projectRepository.DeleteVOCFeedbackReceivedDateByProjectIdAsync(projectId);
+
+            if (updatedProject == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedProject);
+        }
+
+        private (DateTime startDate, DateTime endDate) GetFinancialQuarterDates(int startYear, int quarter)
+        {
+            DateTime startDate;
+            DateTime endDate;
+
+            switch (quarter)
+            {
+                case 1:
+                    startDate = new DateTime(startYear, 4, 1);  // April 1st
+                    endDate = new DateTime(startYear, 6, 30);   // June 30th
+                    break;
+                case 2:
+                    startDate = new DateTime(startYear, 7, 1);  // July 1st
+                    endDate = new DateTime(startYear, 9, 30);   // September 30th
+                    break;
+                case 3:
+                    startDate = new DateTime(startYear, 10, 1); // October 1st
+                    endDate = new DateTime(startYear, 12, 31);  // December 31st
+                    break;
+                case 4:
+                    startDate = new DateTime(startYear + 1, 1, 1); // January 1st of the next year
+                    endDate = new DateTime(startYear + 1, 3, 31);  // March 31st of the next year
+                    break;
+                default:
+                    throw new ArgumentException("Invalid quarter. It must be between 1 and 4.");
+            }
+
+            return (startDate, endDate);
+        }
+
+        [HttpPost("{PMName}")]
+        public async Task<IActionResult> AddEmailforPRojectManager(string PMName, string PMEmail)
+        {
+            try
+            {
+                var Project = await _projectRepository.AddProjectManagerMailAsync(PMName, PMEmail);
+
+                Project.PMMails = PMEmail;
+                return Ok(new { success = true, message = "PM Mail received." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Either the given Project Manager's name doesn't exist or spelling is wrong ! !", message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{PMName}/PMMails")]
+        public async Task<IActionResult> DeleteEmailforProjectManager(string PMName)
+        {
+            try
+            {
+                await _projectRepository.DeleteProjectManagerMail(PMName);
+                return Ok(new { success = true, message = "PM Mail Deleted." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Either the given Project Manager's name doesn't exist or spelling is wrong ! !", message = ex.Message });
+            }
+        }
 
         // Get All Projects
         [HttpGet]
@@ -164,7 +375,7 @@ namespace DATEX_ProjectDatabase.Controllers
                     return NotFound(new { message = "Project not found" });
                 }
 
-                _projectRepository.UpdateProjectEditableFields(id, project);
+                await _projectRepository.UpdateProjectEditableFields(id, project);
                 await _projectRepository.SaveAsync();
 
                 // Fetch the updated project to return in the response
@@ -264,8 +475,15 @@ namespace DATEX_ProjectDatabase.Controllers
                 return BadRequest(new { message = "No data provided" });
             }
 
+            // Validate that all project codes are non-null and non-empty
+            if (excelRows.Any(row => string.IsNullOrWhiteSpace(row.ProjectCode)))
+            {
+                return BadRequest(new { message = "Some rows have missing or empty ProjectCode" });
+            }
+
             try
             {
+                // Fetch projects by valid codes only
                 var projectCodes = excelRows.Select(row => row.ProjectCode).ToList();
                 var existingProjects = await _projectRepository.GetProjectsByCodesAsync(projectCodes);
 
@@ -280,10 +498,21 @@ namespace DATEX_ProjectDatabase.Controllers
 
                     if (existingProject != null)
                     {
+                        int monthsDifference = ((existingProject.ProjectEndDate.Year - existingProject.ProjectStartDate.Year) * 12) +
+                                   existingProject.ProjectEndDate.Month - existingProject.ProjectStartDate.Month;
+                        if (monthsDifference < 6)
+                        {
+                            existingProject.VOCEligibilityDate = row.ProjectEndDate;
+                        }
+                        else
+                        {
+                            // Add custom logic if needed when the condition is not met
+                            existingProject.VOCEligibilityDate = row.VOCEligibilityDate; // Default or placeholder value
+                        }
                         // Map ExcelRow to existing project
                         existingProject.SQA = row.SQA;
                         existingProject.ForecastedEndDate = row.ForecastedEndDate;
-                        existingProject.VOCEligibilityDate = row.VOCEligibilityDate;
+                        /*existingProject.VOCEligibilityDate = row.VOCEligibilityDate;*/
                         existingProject.ProjectType = row.ProjectType;
                         existingProject.Domain = row.Domain;
                         existingProject.DatabaseUsed = row.DatabaseUsed;
@@ -295,7 +524,7 @@ namespace DATEX_ProjectDatabase.Controllers
                     }
 
                     return existingProject;
-                }).ToList();
+                }).Where(project => project != null).ToList(); // Filter out null projects
 
                 await _projectRepository.UpdateProjectsAsync(updatedProjects);
 
@@ -315,6 +544,7 @@ namespace DATEX_ProjectDatabase.Controllers
         public async Task<IActionResult> GetFilteredProjects(
      [FromQuery] string du = null,
      [FromQuery] string duHead = null,
+     [FromQuery] string projectCode = null,
      [FromQuery] DateTime? projectStartDate = null,
      [FromQuery] DateTime? projectEndDate = null,
      [FromQuery] string projectManager = null,
@@ -337,6 +567,7 @@ namespace DATEX_ProjectDatabase.Controllers
                 var projects = await _projectRepository.GetFilteredProjectsAsync(
                     du,
                     duHead,
+                    projectCode,
                     projectStartDate,
                     projectEndDate,
                     projectManager,
@@ -366,7 +597,60 @@ namespace DATEX_ProjectDatabase.Controllers
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+
+        [HttpGet("paged-filtered")]
+        public async Task<IActionResult> GetPagedAndFilteredProjects(
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 7,
+    [FromQuery] string du = null,
+    [FromQuery] string duHead = null,
+    [FromQuery] string projectCode = null,
+    [FromQuery] DateTime? projectStartDate = null,
+    [FromQuery] DateTime? projectEndDate = null,
+    [FromQuery] string projectManager = null,
+    [FromQuery] string contractType = null,
+    [FromQuery] string customerName = null,
+    [FromQuery] string region = null,
+    [FromQuery] string technology = null,
+    [FromQuery] string status = null,
+    [FromQuery] string sqa = null,
+    [FromQuery] DateTime? vocEligibilityDate = null,
+    [FromQuery] string projectType = null,
+    [FromQuery] string domain = null,
+    [FromQuery] string databaseUsed = null,
+    [FromQuery] string cloudUsed = null,
+    [FromQuery] string feedbackStatus = null,
+    [FromQuery] string mailStatus = null)
+        {
+            try
+            {
+                // Apply filtering
+                var filteredProjects = (await _projectRepository.GetFilteredProjectsAsync(
+                du, duHead, projectCode, projectStartDate, projectEndDate, projectManager,
+                contractType, customerName, region, technology, status,
+                sqa, vocEligibilityDate, projectType, domain, databaseUsed,
+                cloudUsed, feedbackStatus, mailStatus)).ToList();
+
+                // Apply pagination
+                var pagedProjects = filteredProjects
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var response = new
+                {
+                    TotalProjects = filteredProjects.Count,
+                    Projects = pagedProjects
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Exception: {ex.Message}, StackTrace: {ex.StackTrace}, InnerException: {ex.InnerException?.Message}";
+                Console.WriteLine(errorMessage);
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+            }
+        }
     }
-
-
 }

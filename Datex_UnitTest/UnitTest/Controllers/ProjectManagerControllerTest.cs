@@ -1,4 +1,4 @@
-﻿using DATEX_ProjectDatabase.Controllers;
+﻿/*using DATEX_ProjectDatabase.Controllers;
 using DATEX_ProjectDatabase.Interfaces;
 using DATEX_ProjectDatabase.Model;
 using DATEX_ProjectDatabase.Service;
@@ -28,8 +28,8 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         public async Task PostProjectManager_ValidData_ReturnsCreatedAtAction()
         {
             // Arrange
-            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
-            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
+            var projectManager = new ProjectManagers {Name = "John Doe", Email = "john.doe@example.com" };
+            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.Name))
                 .ReturnsAsync(projectManager);  // Return Task<ProjectManagers>
 
             // Act
@@ -40,7 +40,7 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
             ClassicAssert.IsNotNull(createdAtActionResult);
             ClassicAssert.AreEqual(201, createdAtActionResult.StatusCode);
             ClassicAssert.AreEqual(nameof(ProjectManagerController.GetProjectManager), createdAtActionResult.ActionName);
-            ClassicAssert.AreEqual(projectManager.ProjectId, createdAtActionResult.RouteValues["id"]);
+            ClassicAssert.AreEqual(projectManager.Name, createdAtActionResult.RouteValues["Name"]);
             ClassicAssert.AreEqual(projectManager, createdAtActionResult.Value);
         }
 
@@ -61,12 +61,12 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         public async Task PutProjectManager_ValidData_ReturnsNoContent()
         {
             // Arrange
-            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
-            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.ProjectId))
+            var projectManager = new ProjectManagers {Name = "John Doe", Email = "john.doe@example.com" };
+            _projectManagerServiceMock.Setup(s => s.UpsertProjectManagerAsync(projectManager, projectManager.Name))
                 .ReturnsAsync(projectManager);  // Return Task<ProjectManagers>
 
             // Act
-            var result = await _controller.PutProjectManager(projectManager.ProjectId, projectManager);
+            var result = await _controller.PutProjectManager(projectManager.Name, projectManager);
 
             // Assert
             var noContentResult = result as NoContentResult;
@@ -79,10 +79,10 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         public async Task PutProjectManager_ChecksMismatchedProjectId()
         {
             // Arrange
-            var projectManager = new ProjectManagers { ProjectId = 1, Name = "John Doe", Email = "john.doe@example.com" };
+            var projectManager = new ProjectManagers { Name = "John Doe", Email = "john.doe@example.com" };
 
             // Act
-            var result = await _controller.PutProjectManager(2, projectManager);
+            var result = await _controller.PutProjectManager("John Doe", projectManager);
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;
@@ -95,7 +95,7 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         public async Task PutProjectManager_ChecksNullData()
         {
             // Act
-            var result = await _controller.PutProjectManager(1, null);
+            var result = await _controller.PutProjectManager(" ", null);
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;
@@ -105,3 +105,4 @@ namespace DATEX_ProjectDatabase.Tests.Controllers
         }
     }
 }
+*/

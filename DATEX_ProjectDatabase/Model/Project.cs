@@ -1,6 +1,9 @@
 ﻿using DATEX_ProjectDatabase.Model;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Globalization;
+using System.Net.Mail;
 
 namespace DATEX_ProjectDatabase.Models
 {
@@ -9,10 +12,9 @@ namespace DATEX_ProjectDatabase.Models
         // Read-only fields (received from external API)
         private DateTime _projectStartDate;
         private DateTime _projectEndDate;
-
         public int ProjectId { get; set; }
-        public string ProjectCode { get; set; }
-        public string ProjectName { get; set; }
+        public string ProjectCode { get; set; } 
+        public string ProjectName { get; set; } 
         public string DU { get; set; }
         public string DUHead { get; set; }
 
@@ -36,7 +38,6 @@ namespace DATEX_ProjectDatabase.Models
                 CalculateVOCEligibilityDate();
             }
         }
-
         public string ProjectManager { get; set; }
         public string ContractType { get; set; }
         public int? NumberOfResources { get; set; }
@@ -50,6 +51,10 @@ namespace DATEX_ProjectDatabase.Models
         public DateTime? ForecastedEndDate { get; set; }
         public DateTime? VOCEligibilityDate { get; set; }
         public int ProjectDurationInDays { get; set; }
+        public DateTime? PMInitiateDate { get; set; }
+        public DateTime? VOCFeedbackReceivedDate { get; set; }
+        public string PMMails { get; set; }
+        public string VocRemarks { get; set; }
         public int ProjectDurationInMonths { get; set; }
         public string ProjectType { get; set; }
         public string Domain { get; set; }
@@ -58,23 +63,14 @@ namespace DATEX_ProjectDatabase.Models
         public string FeedbackStatus { get; set; } // (Received, Pending)
         public string MailStatus { get; set; } // (Initiated, Not Initiated)
 
-        public ICollection<ProjectManagers> ProjectManagers { get; set; }
-
         // Automatically calculates the VOC Eligibility Date
         private void CalculateVOCEligibilityDate()
         {
-            if (_projectStartDate != default && _projectEndDate != default)
+            int monthsDifference = ((ProjectEndDate.Year - ProjectStartDate.Year) * 12) +
+                               ProjectEndDate.Month - ProjectStartDate.Month;
+            if (monthsDifference < 6)
             {
-                DateTime sixMonthsFromStart = _projectStartDate.AddMonths(6);
-
-                if (_projectEndDate <= sixMonthsFromStart)
-                {
-                    VOCEligibilityDate = _projectEndDate;
-                }
-                else
-                {
-                    VOCEligibilityDate = sixMonthsFromStart;
-                }
+                VOCEligibilityDate = ProjectEndDate;
             }
         }
     }

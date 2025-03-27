@@ -4,6 +4,7 @@ using DATEX_ProjectDatabase.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250206060139_ Response Completeion time")]
+    partial class ResponseCompleteiontime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,9 +98,6 @@ namespace DATEX_ProjectDatabase.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Quality")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Response_Completion_Time")

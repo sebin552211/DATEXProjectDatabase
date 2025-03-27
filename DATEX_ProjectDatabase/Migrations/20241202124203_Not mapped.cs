@@ -6,11 +6,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DATEX_ProjectDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class Notmapped : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ProjectManagers",
+                columns: table => new
+                {
+                    ProjectManagerId = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                });
+
             migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
@@ -34,6 +46,10 @@ namespace DATEX_ProjectDatabase.Migrations
                     ForecastedEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     VOCEligibilityDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ProjectDurationInDays = table.Column<int>(type: "int", nullable: false, computedColumnSql: "DATEDIFF(day, ProjectStartDate, ProjectEndDate)"),
+                    PMInitiateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    VOCFeedbackReceivedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PMMails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VocRemarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProjectDurationInMonths = table.Column<int>(type: "int", nullable: false, computedColumnSql: "DATEDIFF(month, ProjectStartDate, ProjectEndDate)"),
                     ProjectType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Domain = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -72,32 +88,14 @@ namespace DATEX_ProjectDatabase.Migrations
                     Communication = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Knowledge = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EngageService = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Score = table.Column<int>(type: "int", nullable: false)
+                    Score = table.Column<int>(type: "int", nullable: false),
+                    VOCFeedbackReceivedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VOCRemarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PMInitiateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VocAnalyses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProjectManagers",
-                columns: table => new
-                {
-                    ProjectManagerId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProjectManagers", x => x.ProjectManagerId);
-                    table.ForeignKey(
-                        name: "FK_ProjectManagers_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "ProjectId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -127,11 +125,6 @@ namespace DATEX_ProjectDatabase.Migrations
                 name: "IX_Employees_RoleId",
                 table: "Employees",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectManagers_ProjectId",
-                table: "ProjectManagers",
-                column: "ProjectId");
         }
 
         /// <inheritdoc />
@@ -144,13 +137,13 @@ namespace DATEX_ProjectDatabase.Migrations
                 name: "ProjectManagers");
 
             migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
                 name: "VocAnalyses");
 
             migrationBuilder.DropTable(
                 name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "Projects");
         }
     }
 }

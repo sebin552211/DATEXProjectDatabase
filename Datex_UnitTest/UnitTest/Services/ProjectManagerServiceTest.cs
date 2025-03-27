@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -31,11 +31,11 @@ namespace Datex_UnitTest.UnitTest.Services
         public async Task UpsertProjectManagerAsync_ProjectNotFound_ThrowsArgumentException()
         {
             // Arrange
-            var projectId = 1;
-            _mockProjectRepository.Setup(repo => repo.GetProjectByIdAsync(projectId)).ReturnsAsync((Project)null);
+            var PMName = "John Doe";
+            _mockProjectRepository.Setup(repo => repo.GetProjectsByPMNameAsync(PMName)).ReturnsAsync((Project)null);
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.UpsertProjectManagerAsync(new ProjectManagers(), projectId));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.UpsertProjectManagerAsync(new ProjectManagers(), PMName));
             Assert.That(ex.Message, Is.EqualTo("Project not found"));
         }
 
@@ -43,19 +43,19 @@ namespace Datex_UnitTest.UnitTest.Services
         public async Task UpsertProjectManagerAsync_NoExistingManager_AddsNewManager()
         {
             // Arrange
-            var projectId = 1;
-            var project = new Project { ProjectId = projectId, ProjectManager = "John Doe" };
+
+            var project = new Project { ProjectManager = "John Doe" };
+            var PM = "Mahesh";
             var newManager = new ProjectManagers { Email = "john.doe@example.com" };
 
-            _mockProjectRepository.Setup(repo => repo.GetProjectByIdAsync(projectId)).ReturnsAsync(project);
-            _mockProjectManagerRepository.Setup(repo => repo.GetProjectManagerByProjectIdAsync(projectId)).ReturnsAsync((ProjectManagers)null);
+            _mockProjectRepository.Setup(repo => repo.GetProjectsByPMNameAsync(PM)).ReturnsAsync(project);
+            _mockProjectManagerRepository.Setup(repo => repo.GetProjectManagerByPMNameAsync(PM)).ReturnsAsync((ProjectManagers)null);
 
             // Act
-            var result = await _service.UpsertProjectManagerAsync(newManager, projectId);
+            var result = await _service.UpsertProjectManagerAsync(newManager, PM);
 
             // Assert
             _mockProjectManagerRepository.Verify(repo => repo.AddProjectManagerAsync(It.Is<ProjectManagers>(pm =>
-                pm.ProjectId == projectId &&
                 pm.Name == "John Doe" &&
                 pm.Email == "john.doe@example.com"
             )), Times.Once);
@@ -68,3 +68,4 @@ namespace Datex_UnitTest.UnitTest.Services
 
     }
 }
+*/

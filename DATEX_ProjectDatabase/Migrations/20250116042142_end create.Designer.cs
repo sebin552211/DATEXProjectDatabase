@@ -4,6 +4,7 @@ using DATEX_ProjectDatabase.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATEX_ProjectDatabase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250116042142_end create")]
+    partial class endcreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,9 +85,6 @@ namespace DATEX_ProjectDatabase.Migrations
                     b.Property<string>("CustomerFocus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DU")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("EngageService")
                         .HasColumnType("nvarchar(max)");
 
@@ -96,12 +96,6 @@ namespace DATEX_ProjectDatabase.Migrations
 
                     b.Property<string>("Quality")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Response_Completion_Time")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("Score")
                         .HasColumnType("int");

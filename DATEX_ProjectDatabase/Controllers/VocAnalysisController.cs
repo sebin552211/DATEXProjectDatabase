@@ -164,12 +164,12 @@ namespace DATEX_ProjectDatabase.Controllers
                 }
 
                 return Ok(feedback);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
 
 
@@ -214,7 +214,7 @@ namespace DATEX_ProjectDatabase.Controllers
         }
 
         [HttpGet("calculate/SurveyId")]
-        public async Task<IActionResult> CalculateSatisfactoryScore(string Quarter = null, string SurveyId = null)
+        public async Task<IActionResult> CalculateSatisfactoryScoreAndDU(string Quarter = null, string SurveyId = null, string DU = null)
         {
             try
             {
@@ -232,7 +232,7 @@ namespace DATEX_ProjectDatabase.Controllers
                         surveysInQuarter = surveysInQuarter.Where(s => s.SurveyId == SurveyId).ToList();
                     }
 
-                    if (!surveysInQuarter.Any()) 
+                    if (!surveysInQuarter.Any())
                     {
                         var survey = await _projectRepository.GetBySurveyIdAsync(SurveyId);
                         if (survey != null && (string.IsNullOrEmpty(Quarter) || GetQuarterFromDate(survey.Response_Completion_Time) == Quarter))
@@ -247,9 +247,39 @@ namespace DATEX_ProjectDatabase.Controllers
                     }
                 }
 
+                if (!string.IsNullOrEmpty(DU))
+                {
+                    if (surveysInQuarter.Any())
+                    {
+                        var filteredByDU = surveysInQuarter.Where(s => s.DU == DU).ToList();
+                        if (filteredByDU.Any())
+                        {
+                            surveysInQuarter = filteredByDU;
+                        }
+                        else
+                        {
+                            surveysInQuarter = await _projectRepository.GetByDUAsync(DU);
+                        }
+                    }
+                    else
+                    {
+                        surveysInQuarter = await _projectRepository.GetByDUAsync(DU);
+
+                        if (!string.IsNullOrEmpty(Quarter))
+                        {
+                            surveysInQuarter = surveysInQuarter.Where(s => GetQuarterFromDate(s.Response_Completion_Time) == Quarter).ToList();
+                        }
+                    }
+
+                    if (!surveysInQuarter.Any())
+                    {
+                        return NotFound("No matching DU found in the given quarter.");
+                    }
+                }
+
                 if (!surveysInQuarter.Any())
                 {
-                    return NotFound("No surveys found for the given quarter.");
+                    return NotFound("No surveys found for the given criteria.");
                 }
 
                 int totalNA = 0;
@@ -293,11 +323,6 @@ namespace DATEX_ProjectDatabase.Controllers
                 return Ok(new
                 {
                     satisfactory_score = Math.Floor(satisfactoryScore),
-                    totalScore,
-                    denominator,
-                    surveysInQuarter,
-                    totalNA,
-                    surveyCount
                 });
             }
             catch (Exception ex)
@@ -367,8 +392,6 @@ namespace DATEX_ProjectDatabase.Controllers
 
             return naCount;
         }
-
-
 
         [HttpGet("calculate")]
         public async Task<IActionResult> CalculateSatisfactoryScore()

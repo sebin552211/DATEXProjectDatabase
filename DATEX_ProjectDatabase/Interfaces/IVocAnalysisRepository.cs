@@ -12,6 +12,7 @@ namespace DATEX_ProjectDatabase.Interfaces
         /*Task<VOCAnalysis> SurveyIdExistsAsync(string surveyId);*/
         /*Task AddAsync(VOCAnalysis vocAnalysis);*/
         Task SaveVocAnalysesAsync(List<VOCAnalysis> vocAnalyses);
+        Task<List<VOCAnalysis>> GetByDUAsync(string DU);
         Task<HashSet<string>> GetExistingResponseIdsAsync();
         Task UpdateVocAnalysisAsync(VOCAnalysis vocAnalysis);
         Task<List<VOCAnalysis>> GetFeedbackByDUandSurveyId(string Du = null, string SurveyId = null);

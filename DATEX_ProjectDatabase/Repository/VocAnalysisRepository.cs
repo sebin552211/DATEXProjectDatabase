@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DATEX_ProjectDatabase.Repository
 {
@@ -54,6 +55,7 @@ namespace DATEX_ProjectDatabase.Repository
         }
 
 
+
         public async Task<VOCAnalysis> DeleteDUinSurveyId(string SurveyId)
         {
             var feedback = await GetBySurveyIdAsync(SurveyId);
@@ -94,6 +96,18 @@ namespace DATEX_ProjectDatabase.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<VOCAnalysis>> GetByDUAsync(string DU)
+        {
+            if (string.IsNullOrWhiteSpace(DU))
+            {
+                return new List<VOCAnalysis>();
+            }
+
+            return await _context.VocAnalyses
+                .Where(v => v.DU == DU)
+                .ToListAsync();
+        }
+
 
         private (DateTime, DateTime)? GetQuarterDateRange(string quarter)
         {
@@ -131,6 +145,14 @@ namespace DATEX_ProjectDatabase.Repository
             return (startDate, endDate);
         }
 
+      /*  public async Task<List<VOCAnalysis>> GetSurveysByQuarterAndDUAsync(string quarter, string du)
+        {
+            return await _context.VocAnalyses
+                .Where(s => GetQuarterFromDate(s.Response_Completion_Time) == quarter && s.DU == du)
+                .ToListAsync();
+        }*/
+
+
 
         public async Task SaveVocAnalysesAsync(IEnumerable<VOCAnalysis> vocAnalyses)
         {
@@ -145,7 +167,8 @@ namespace DATEX_ProjectDatabase.Repository
                 query = query.Where(p => p.DU == Du);
             if (!string.IsNullOrEmpty(SurveyId))
                 query = query.Where(p => p.SurveyId == SurveyId);
-            return await query.Where(v => v != null).ToListAsync();
+            return await query.ToListAsync();
+
         }
 
         public async Task<IEnumerable<VOCAnalysis>> GetFilteredFeedbackAsyncBySurveyId(string surveyId)
